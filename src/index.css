@@ -1,0 +1,41 @@
+@import "./styles/tokens.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Ambient fallback for no-WebGL environments */
+.ambient-fallback {
+  background-image:
+    radial-gradient(1200px 520px at 10% 12%, hsl(192 82% 38% / 0.55), transparent 72%),
+    radial-gradient(900px 480px at 92% 0%, hsl(34 95% 52% / 0.45), transparent 72%),
+    radial-gradient(720px 640px at 24% 88%, hsl(260 85% 48% / 0.22), transparent 72%),
+    linear-gradient(180deg, hsl(226 40% 10%), hsl(252 55% 6%));
+  background-repeat: no-repeat;
+  background-size: 1200px 520px, 900px 480px, 720px 640px, 100% 100%;
+  background-position: 0 0, 100% 0, 0 100%, 0 0;
+  filter: saturate(1.1);
+}
+
+@keyframes ambient-move {
+  0% {
+    background-position: 0 0, 100% 0, 0 100%, 0 0;
+  }
+  100% {
+    background-position: -860px 0, 1480px 0, 0 -820px, 0 0;
+  }
+}
+
+.ambient-fallback-animated {
+  animation: ambient-move 60s linear infinite;
+}

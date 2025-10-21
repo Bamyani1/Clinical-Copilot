@@ -1,0 +1,60 @@
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { AlertTriangle, Sparkle } from "lucide-react";
+
+const fadeIn = (delay = 0) => ({
+  initial: { opacity: 0, y: 32 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] } },
+});
+
+const Index = () => {
+  return (
+    <>
+      <motion.section
+        className="relative overflow-hidden rounded-[52px] border border-primary-muted/40 bg-gradient-hero px-6 py-20 sm:px-12 sm:py-28"
+        initial="initial"
+        animate="animate"
+      >
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -top-24 right-16 h-64 w-64 rounded-full bg-primary/30 blur-[140px]" aria-hidden />
+          <div className="absolute bottom-0 left-12 h-72 w-72 rounded-full bg-secondary/20 blur-[160px]" aria-hidden />
+        </div>
+
+        <motion.div variants={fadeIn(0)} className="flex flex-col gap-6 text-left">
+          <motion.h1
+            className="max-w-3xl text-4xl font-semibold leading-tight sm:text-6xl"
+            variants={fadeIn(0.08)}
+          >
+            Ambient-first workflow for AI-assisted primary care.
+          </motion.h1>
+          <motion.p className="max-w-2xl text-base text-muted-foreground sm:text-lg" variants={fadeIn(0.12)}>
+            Explore a neon-dark cockpit tuned for clarity under clinical pressure. Each module in this sandbox aligns
+            multimodal capture, rapid reasoning review, and clinician-first oversight.
+          </motion.p>
+        </motion.div>
+
+        <motion.div className="mt-10 flex" variants={fadeIn(0.18)}>
+          <Link to="/consent">
+            <Button className="group flex items-center gap-3 rounded-full bg-gradient-primary px-10 py-6 text-sm font-semibold uppercase tracking-[0.24em] text-background shadow-lg shadow-primary/40 transition hover:shadow-xl">
+              Run Live Simulation
+              <Sparkle className="h-4 w-4 transition group-hover:rotate-6 group-hover:scale-110" />
+            </Button>
+          </Link>
+        </motion.div>
+      </motion.section>
+
+      <div className="mt-8 flex justify-center">
+        <div className="flex max-w-3xl items-start gap-3 rounded-3xl border border-border/60 bg-surface-strong/95 px-5 py-4 text-sm text-foreground shadow-inner shadow-accent/20 backdrop-blur">
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-warning" />
+          <p className="text-foreground">
+            Demo only—do not use this prototype for patient care, diagnosis, or treatment decisions. Data remains local and
+            all outputs are simulated.
+          </p>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default Index;
