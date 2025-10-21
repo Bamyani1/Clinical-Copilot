@@ -1,8 +1,7 @@
 import { Link, NavLink } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { ArrowUpRight, Moon, Stethoscope, SunMedium, WifiOff } from "lucide-react";
+import { ArrowUpRight, Stethoscope, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useTheme } from "@/components/theme/theme-context";
 
 type Props = {
   children: React.ReactNode;
@@ -17,7 +16,6 @@ const navItems = [
 
 export function AppShell({ children }: Props) {
   const [isOnline, setIsOnline] = useState<boolean>(typeof navigator !== "undefined" ? navigator.onLine : true);
-  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const on = () => setIsOnline(true);
@@ -31,12 +29,7 @@ export function AppShell({ children }: Props) {
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-background text-foreground antialiased">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-48 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-primary-soft/40 blur-[120px]" />
-        <div className="absolute bottom-[-280px] right-[-160px] h-[560px] w-[560px] rounded-full bg-secondary/20 blur-[140px]" />
-        <div className="absolute -left-40 top-1/3 h-[340px] w-[340px] rounded-full bg-accent/12 blur-[110px]" />
-      </div>
+    <div className="relative min-h-screen text-foreground antialiased">
 
       <a
         href="#main"
@@ -86,17 +79,6 @@ export function AppShell({ children }: Props) {
           </nav>
 
           <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-              className="h-9 w-9 rounded-full border border-border/60 bg-surface/60 text-muted-foreground shadow-sm transition hover:bg-primary-soft/40 hover:text-foreground"
-              onClick={toggleTheme}
-            >
-              {theme === "dark" ? <SunMedium className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-              <span className="sr-only">{theme === "dark" ? "Activate light mode" : "Activate dark mode"}</span>
-            </Button>
             <Link to="/consent">
               <Button className="hidden h-9 rounded-full border border-primary-muted bg-transparent px-4 text-xs font-semibold uppercase tracking-[0.2em] text-primary transition hover:bg-primary/20 md:flex">
                 Launch Visit
