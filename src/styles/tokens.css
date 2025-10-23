@@ -1,9 +1,9 @@
 :root {
-  /* Base surfaces */
-  --background: 210 33% 97%;
-  --foreground: 222 44% 16%;
-  --surface: 210 32% 92%;
-  --surface-strong: 222 28% 82%;
+  /* Base surfaces rooted in the charcoal backdrop */
+  --background: 213 20% 11%;
+  --foreground: 39 90% 88%;
+  --surface: 210 24% 16%;
+  --surface-strong: 213 29% 19%;
 
   /* Layered surfaces */
   --card: var(--surface);
@@ -11,53 +11,53 @@
   --popover: var(--surface-strong);
   --popover-foreground: var(--foreground);
 
-  /* Brand palette */
-  --primary: 199 92% 40%;
-  --primary-foreground: 210 33% 97%;
-  --primary-soft: 199 100% 92%;
-  --primary-muted: 209 72% 28%;
+  /* Brand palette built around the gold + charcoal duo */
+  --primary: 33 88% 64%;
+  --primary-foreground: 213 28% 12%;
+  --primary-soft: 39 90% 85%;
+  --primary-muted: 32 69% 46%;
 
-  --secondary: 271 84% 68%;
-  --secondary-foreground: 222 44% 16%;
-  --secondary-muted: 271 90% 94%;
+  --secondary: 213 23% 24%;
+  --secondary-foreground: var(--foreground);
+  --secondary-muted: 213 23% 32%;
 
-  --accent: 157 68% 42%;
-  --accent-foreground: 210 33% 97%;
+  --accent: 33 86% 70%;
+  --accent-foreground: 213 28% 12%;
 
   /* Typographic helpers */
-  --muted: 210 24% 88%;
-  --muted-foreground: 223 15% 36%;
-  --subtle: 199 70% 38%;
+  --muted: 213 20% 28%;
+  --muted-foreground: 39 72% 78%;
+  --subtle: 33 88% 64%;
 
-  /* Status palette */
-  --success: 155 70% 38%;
+  /* Status palette with warmer emphasis */
+  --success: 145 26% 48%;
   --success-foreground: 0 0% 100%;
-  --success-light: 155 52% 85%;
+  --success-light: 145 26% 76%;
 
-  --warning: 36 94% 52%;
-  --warning-foreground: 0 0% 100%;
-  --warning-light: 36 100% 90%;
+  --warning: 33 88% 64%;
+  --warning-foreground: 213 28% 12%;
+  --warning-light: 33 88% 82%;
 
-  --destructive: 350 80% 54%;
+  --destructive: 7 77% 49%;
   --destructive-foreground: 0 0% 100%;
 
-  --red-flag: 0 78% 52%;
+  --red-flag: 8 80% 54%;
   --red-flag-foreground: 0 0% 100%;
-  --red-flag-light: 0 80% 92%;
+  --red-flag-light: 8 80% 86%;
 
-  /* Confidence indicators */
-  --confidence-high: 199 92% 40%;
-  --confidence-medium: 271 84% 68%;
-  --confidence-low: 157 68% 42%;
+  /* Confidence indicators follow the primary's warmth */
+  --confidence-high: 33 88% 64%;
+  --confidence-medium: 33 86% 70%;
+  --confidence-low: 39 90% 85%;
 
   /* Form + borders */
-  --border: 216 28% 74%;
-  --input: 210 26% 86%;
-  --ring: 199 92% 40%;
+  --border: 213 23% 28%;
+  --input: 213 23% 22%;
+  --ring: var(--primary);
 
   /* Layout */
-  --radius: 1rem;
-  --radius-md: 0.75rem;
+  --radius: 1.25rem;
+  --radius-md: 1rem;
   --radius-lg: 1.75rem;
 
   /* Typography scale */
@@ -87,17 +87,17 @@
   --space-16: 64px;
 
   /* Gradients */
-  --gradient-hero: radial-gradient(1100px 640px at 14% 12%, hsl(199 92% 48% / 0.32), transparent 72%), radial-gradient(960px 540px at 86% 8%, hsl(271 84% 68% / 0.25), transparent 70%), linear-gradient(180deg, hsl(210 33% 97%), hsl(210 32% 92%));
-  --gradient-primary: linear-gradient(135deg, hsl(199 92% 40%), hsl(271 84% 68%));
-  --gradient-success: linear-gradient(135deg, hsl(155 70% 38%), hsl(157 68% 46%));
-  --gradient-warning: linear-gradient(135deg, hsl(36 94% 52%), hsl(24 94% 56%));
-  --gradient-subtle: linear-gradient(180deg, hsl(210 33% 97%), hsl(210 32% 92%));
+  --gradient-hero: radial-gradient(960px 540px at 16% 8%, hsl(33 88% 64% / 0.32), transparent 72%), radial-gradient(720px 480px at 84% 12%, hsl(39 90% 85% / 0.18), transparent 70%), linear-gradient(180deg, hsl(213 23% 18%), hsl(213 20% 11%));
+  --gradient-primary: linear-gradient(135deg, hsl(33 88% 64%), hsl(33 86% 70%));
+  --gradient-success: linear-gradient(135deg, hsl(145 26% 48%), hsl(145 26% 56%));
+  --gradient-warning: linear-gradient(135deg, hsl(33 88% 64%), hsl(33 86% 70%));
+  --gradient-subtle: linear-gradient(180deg, hsl(213 20% 14%), hsl(213 20% 11%));
 
   /* Shadows */
-  --shadow-sm: 0 12px 32px -18px hsl(199 92% 40% / 0.2);
-  --shadow-md: 0 24px 54px -22px hsl(271 84% 60% / 0.22);
-  --shadow-lg: 0 30px 72px -26px hsl(157 68% 42% / 0.22);
-  --shadow-xl: 0 42px 96px -28px hsl(199 92% 40% / 0.28);
+  --shadow-sm: 0 12px 32px -18px hsl(213 22% 8% / 0.45);
+  --shadow-md: 0 24px 54px -22px hsl(213 32% 12% / 0.5);
+  --shadow-lg: 0 30px 72px -26px hsl(33 88% 24% / 0.45);
+  --shadow-xl: 0 42px 96px -28px hsl(33 88% 36% / 0.5);
 
   /* Motion */
   --transition-fast: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);

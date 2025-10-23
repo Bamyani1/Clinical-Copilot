@@ -45,7 +45,7 @@ export default function Visit() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-primary rounded-lg">
+              <div className="rounded-[var(--radius-md)] bg-gradient-primary p-2">
                 <Stethoscope className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
@@ -67,46 +67,46 @@ export default function Visit() {
       </header>
 
       <main className="container mx-auto flex flex-col gap-6 px-4 py-6 pb-24 lg:gap-8">
-        <div className="grid flex-1 min-h-0 gap-6 lg:grid-cols-12">
+        <div className="grid flex-1 min-h-0 gap-6 lg:grid-cols-12 items-stretch">
           {/* Left Column - Audio & Transcript */}
-          <div className="flex min-h-0 flex-col space-y-6 lg:col-span-4">
+          <div className="flex min-h-0 h-full w-full flex-col space-y-6 lg:col-span-4">
             <AudioCapture />
-            <div className="flex-1 min-h-0">
+            <div className="flex-1 min-h-0 flex flex-col">
               <TranscriptViewer />
             </div>
           </div>
 
           {/* Middle Column - Case Data */}
-          <div className="flex min-h-0 lg:col-span-4">
+          <div className="flex min-h-0 h-full w-full lg:col-span-4">
             <CaseEditor />
           </div>
 
           {/* Right Column - AI Suggestions */}
-          <div className="flex min-h-0 lg:col-span-4">
+          <div className="flex min-h-0 h-full w-full lg:col-span-4">
             <SuggestionPanel />
           </div>
         </div>
 
         {/* Mobile Tab Navigation */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-card border-t">
-          <div className="flex">
+        <div className="lg:hidden fixed bottom-6 left-1/2 z-40 w-[calc(100%-3rem)] -translate-x-1/2">
+          <div className="flex overflow-hidden rounded-[var(--radius)] border border-border/60 bg-card/95 shadow-lg shadow-primary/20 backdrop-blur">
             <Button
               variant={activeTab === 'transcript' ? 'default' : 'ghost'}
-              className="flex-1 rounded-none"
+              className="flex-1 rounded-none first:rounded-l-[var(--radius)] last:rounded-r-[var(--radius)]"
               onClick={() => setActiveTab('transcript')}
             >
               Transcript
             </Button>
             <Button
               variant={activeTab === 'case' ? 'default' : 'ghost'}
-              className="flex-1 rounded-none"
+              className="flex-1 rounded-none first:rounded-l-[var(--radius)] last:rounded-r-[var(--radius)]"
               onClick={() => setActiveTab('case')}
             >
               Case data
             </Button>
             <Button
               variant={activeTab === 'suggestions' ? 'default' : 'ghost'}
-              className="flex-1 rounded-none"
+              className="flex-1 rounded-none first:rounded-l-[var(--radius)] last:rounded-r-[var(--radius)]"
               onClick={() => setActiveTab('suggestions')}
             >
               Suggestions
@@ -133,7 +133,7 @@ export default function Visit() {
           )}
         </div>
 
-        <div className="rounded-3xl border border-border bg-surface/90 px-4 py-3 shadow-md">
+        <div className="rounded-[var(--radius)] border border-border bg-surface/90 px-4 py-3 shadow-md">
           <Disclaimer className="!bg-transparent !p-0 text-sm leading-relaxed" />
         </div>
       </main>

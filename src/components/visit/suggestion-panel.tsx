@@ -209,13 +209,6 @@ export function SuggestionPanel() {
                           </div>
                           <Progress value={diff.confidence * 100} className="mb-2 h-1" />
                           <p className="text-xs text-muted-foreground">{diff.rationale}</p>
-                          {diff.guidelines && diff.guidelines.length > 0 && (
-                            <div className="mt-2">
-                              <Badge variant="secondary" className="text-xs">
-                                Guidelines: {diff.guidelines.join(', ')}
-                              </Badge>
-                            </div>
-                          )}
                         </CardContent>
                       </Card>
                     ))

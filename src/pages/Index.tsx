@@ -12,7 +12,7 @@ const Index = () => {
   return (
     <>
       <motion.section
-        className="relative overflow-hidden rounded-[52px] border border-primary-muted/40 bg-gradient-hero px-6 py-20 sm:px-12 sm:py-28"
+        className="relative overflow-hidden rounded-[var(--radius-lg)] border border-primary-muted/40 bg-gradient-hero px-6 py-20 sm:px-12 sm:py-28"
         initial="initial"
         animate="animate"
       >
@@ -36,7 +36,7 @@ const Index = () => {
 
         <motion.div className="mt-10 flex" variants={fadeIn(0.18)}>
           <Link to="/consent">
-            <Button className="group flex items-center gap-3 rounded-full bg-gradient-primary px-10 py-6 text-sm font-semibold uppercase tracking-[0.24em] text-background shadow-lg shadow-primary/40 transition hover:shadow-xl">
+            <Button className="group flex items-center gap-3 rounded-full bg-gradient-primary px-10 py-6 text-sm font-semibold uppercase tracking-[0.24em] text-primary-foreground shadow-lg shadow-primary/40 transition hover:shadow-xl">
               Run Live Simulation
               <Sparkle className="h-4 w-4 transition group-hover:rotate-6 group-hover:scale-110" />
             </Button>
@@ -45,7 +45,7 @@ const Index = () => {
       </motion.section>
 
       <div className="mt-8 flex justify-center">
-        <div className="flex max-w-3xl items-start gap-3 rounded-3xl border border-border/60 bg-surface-strong/95 px-5 py-4 text-sm text-foreground shadow-inner shadow-accent/20 backdrop-blur">
+        <div className="flex max-w-3xl items-start gap-3 rounded-[var(--radius)] border border-border/60 bg-surface-strong/95 px-5 py-4 text-sm text-foreground shadow-inner shadow-accent/20 backdrop-blur">
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-warning" />
           <p className="text-foreground">
             Demo only—do not use this prototype for patient care, diagnosis, or treatment decisions. Data remains local and

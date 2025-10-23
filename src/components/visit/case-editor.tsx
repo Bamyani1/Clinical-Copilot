@@ -220,31 +220,16 @@ export function CaseEditor() {
               className="h-8 text-sm"
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label htmlFor="onset" className="text-xs">Onset (days)</Label>
-              <Input
-                id="onset"
-                type="number"
-                placeholder="Days"
-                value={caseData.hpi?.onsetDays || ''}
-                onChange={(e) => handleHPIChange('onsetDays', parseInt(e.target.value) || undefined)}
-                className="h-8 text-sm"
-              />
-            </div>
-            <div>
-              <Label htmlFor="severity" className="text-xs">Severity (1-10)</Label>
-              <Input
-                id="severity"
-                type="number"
-                min="1"
-                max="10"
-                placeholder="1-10"
-                value={caseData.hpi?.severity || ''}
-                onChange={(e) => handleHPIChange('severity', parseInt(e.target.value) || undefined)}
-                className="h-8 text-sm"
-              />
-            </div>
+          <div>
+            <Label htmlFor="onset" className="text-xs">Onset (days)</Label>
+            <Input
+              id="onset"
+              type="number"
+              placeholder="Days"
+              value={caseData.hpi?.onsetDays || ''}
+              onChange={(e) => handleHPIChange('onsetDays', parseInt(e.target.value) || undefined)}
+              className="h-8 text-sm"
+            />
           </div>
         </div>
 

@@ -10,8 +10,6 @@ type Props = {
 const navItems = [
   { to: "/", label: "Overview" },
   { to: "/about", label: "About" },
-  { to: "/guidelines", label: "Guidelines" },
-  { to: "/admin", label: "Control Room" },
 ];
 
 export function AppShell({ children }: Props) {
@@ -29,7 +27,7 @@ export function AppShell({ children }: Props) {
   }, []);
 
   return (
-    <div className="relative min-h-screen text-foreground antialiased">
+    <div className="relative min-h-screen bg-gradient-subtle text-foreground antialiased">
 
       <a
         href="#main"
@@ -49,9 +47,9 @@ export function AppShell({ children }: Props) {
       )}
 
       <header className="relative z-40 px-4 pt-8 sm:px-6">
-        <div className="mx-auto flex w-full max-w-6xl items-center gap-4 rounded-full border border-border/60 bg-surface/70 px-4 py-3 backdrop-blur-2xl sm:px-6">
+        <div className="mx-auto flex w-full max-w-6xl items-center gap-4 rounded-full border border-border/60 bg-surface/70 px-4 py-3 shadow-lg shadow-primary/10 backdrop-blur-2xl sm:px-6">
           <Link to="/" className="flex items-center gap-4 text-sm text-muted-foreground transition hover:text-foreground">
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-primary text-background shadow-md shadow-primary/40">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-primary text-primary-foreground shadow-md shadow-primary/40">
               <Stethoscope className="h-5 w-5" strokeWidth={1.3} />
             </span>
             <div className="leading-tight">
@@ -68,8 +66,8 @@ export function AppShell({ children }: Props) {
                 className={({ isActive }) =>
                   [
                     "rounded-full px-4 py-2 text-xs font-medium tracking-wide transition",
-                    "hover:bg-primary-muted/40 hover:text-foreground",
-                    isActive ? "bg-primary-muted/60 text-primary-foreground" : "text-muted-foreground",
+                    "hover:bg-primary-soft/20 hover:text-foreground",
+                    isActive ? "bg-primary/25 text-foreground" : "text-muted-foreground",
                   ].join(" ")
                 }
               >
@@ -80,7 +78,7 @@ export function AppShell({ children }: Props) {
 
           <div className="flex items-center gap-2">
             <Link to="/consent">
-              <Button className="hidden h-9 rounded-full border border-primary-muted bg-transparent px-4 text-xs font-semibold uppercase tracking-[0.2em] text-primary transition hover:bg-primary/20 md:flex">
+              <Button className="hidden h-9 rounded-full border border-primary-muted/60 bg-transparent px-4 text-xs font-semibold uppercase tracking-[0.2em] text-primary transition hover:bg-primary/20 md:flex">
                 Launch Visit
                 <ArrowUpRight className="ml-2 h-3.5 w-3.5" />
               </Button>
@@ -101,12 +99,6 @@ export function AppShell({ children }: Props) {
           <div className="flex flex-wrap items-center gap-4 text-muted-foreground">
             <Link to="/about" className="transition hover:text-foreground">
               About
-            </Link>
-            <Link to="/guidelines" className="transition hover:text-foreground">
-              Protocol Library
-            </Link>
-            <Link to="/admin" className="transition hover:text-foreground">
-              System Controls
             </Link>
             <a
               href="https://github.com"

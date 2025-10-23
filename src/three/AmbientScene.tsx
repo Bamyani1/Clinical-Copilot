@@ -30,11 +30,11 @@ const AmbientParticles = ({ positions, reducedMotion }: AmbientParticlesProps) =
         <Points positions={positions} stride={3} limit={positions.length / 3}>
           <PointMaterial
             transparent
-            color="#1fd1d0"
+            color="#F4A950"
             size={reducedMotion ? 0.012 : 0.02}
             sizeAttenuation
             depthWrite={false}
-            opacity={0.65}
+            opacity={0.58}
           />
         </Points>
       </points>
@@ -55,7 +55,7 @@ export function AmbientScene({ reducedMotion, lowPowerMode }: AmbientSceneProps)
   return (
     <Canvas dpr={lowPowerMode ? 1 : [1, 2]} camera={{ position: [0, 0, 6], fov: 50 }}>
       <Suspense fallback={null}>
-        <ambientLight intensity={0.2} />
+        <ambientLight intensity={0.18} color="#F4A950" />
         <AmbientParticles positions={positions} reducedMotion={reducedMotion} />
 
         {!reducedMotion && (

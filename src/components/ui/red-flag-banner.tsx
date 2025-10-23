@@ -20,12 +20,14 @@ export function RedFlagBanner({ redFlags, onDismiss, className }: RedFlagBannerP
   const hasCritical = criticalFlags.length > 0;
 
   return (
-    <div className={`fixed top-0 left-0 right-0 z-50 ${className}`}>
-      <Alert className={`rounded-none border-0 ${
-        hasCritical 
-          ? 'bg-red-flag text-red-flag-foreground' 
-          : 'bg-warning text-warning-foreground'
-      }`}>
+    <div className={`fixed top-0 left-0 right-0 z-50 px-4 pt-4 ${className ?? ""}`}>
+      <Alert
+        className={`mx-auto max-w-5xl border-0 shadow-lg shadow-red-flag/30 ${
+          hasCritical
+            ? "bg-red-flag text-red-flag-foreground"
+            : "bg-warning text-warning-foreground"
+        }`}
+      >
         <AlertTriangle className="h-6 w-6" />
         <div className="flex-1">
           <AlertTitle className="text-lg font-bold mb-2">

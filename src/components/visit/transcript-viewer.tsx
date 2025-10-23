@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -41,8 +41,20 @@ export function TranscriptViewer() {
     return speaker === 'doctor' ? <UserCheck className="h-4 w-4" /> : <User className="h-4 w-4" />;
   };
 
+  const scrollAreaRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const viewport = scrollAreaRef.current?.querySelector<HTMLElement>("[data-radix-scroll-area-viewport]");
+    if (viewport) {
+      viewport.scrollTo({
+        top: viewport.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [transcript.length]);
+
   return (
-    <Card className="h-full flex flex-col">
+    <Card className="flex h-full flex-col overflow-hidden">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileText className="h-5 w-5" />
@@ -54,8 +66,8 @@ export function TranscriptViewer() {
           )}
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 overflow-hidden">
-        <ScrollArea className="h-full" role="log" aria-live="polite" aria-relevant="additions text">
+      <CardContent className="flex-1 overflow-hidden px-6 pb-6 pt-0">
+        <ScrollArea ref={scrollAreaRef} className="h-full pr-4" role="log" aria-live="polite" aria-relevant="additions text">
           {transcript.length === 0 ? (
             <div className="flex items-center justify-center h-32 text-muted-foreground">
               <div className="text-center">
