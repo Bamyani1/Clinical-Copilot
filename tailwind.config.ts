@@ -13,7 +13,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Space Grotesk", "Inter", "system-ui", "sans-serif"],
+        sans: ["Manrope", "Inter", "Segoe UI", "-apple-system", "system-ui", "sans-serif"],
+        display: ["Space Grotesk", "Manrope", "Inter", "system-ui", "sans-serif"],
         serif: ["IBM Plex Serif", "Georgia", "serif"],
         mono: ["JetBrains Mono", "ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", "monospace"],
       },

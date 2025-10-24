@@ -1,7 +1,14 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { ArrowUpRight, Stethoscope, WifiOff } from "lucide-react";
+import { ArrowUpRight, Menu, Stethoscope, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type Props = {
   children: React.ReactNode;
@@ -14,6 +21,7 @@ const navItems = [
 
 export function AppShell({ children }: Props) {
   const [isOnline, setIsOnline] = useState<boolean>(typeof navigator !== "undefined" ? navigator.onLine : true);
+  const location = useLocation();
 
   useEffect(() => {
     const on = () => setIsOnline(true);
@@ -58,25 +66,48 @@ export function AppShell({ children }: Props) {
             </div>
           </Link>
 
-          <nav className="ml-auto hidden items-center gap-1 md:flex">
-            {navItems.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) =>
-                  [
-                    "rounded-full px-4 py-2 text-xs font-medium tracking-wide transition",
-                    "hover:bg-primary-soft/20 hover:text-foreground",
-                    isActive ? "bg-primary/25 text-foreground" : "text-muted-foreground",
-                  ].join(" ")
-                }
+          <div className="ml-auto flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-10 w-10 rounded-full border border-border/60 bg-background/40 text-muted-foreground transition hover:border-primary-muted/60 hover:text-foreground"
+                >
+                  <Menu className="h-4 w-4" />
+                  <span className="sr-only">Open navigation menu</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="w-56 rounded-[var(--radius)] border border-border/60 bg-surface/95 p-1 shadow-xl shadow-primary/10 backdrop-blur"
               >
-                {item.label}
-              </NavLink>
-            ))}
-          </nav>
+                {navItems.map((item) => (
+                  <DropdownMenuItem
+                    key={item.to}
+                    asChild
+                    className="cursor-pointer rounded-[calc(var(--radius)-4px)] px-3 py-2 text-sm font-medium tracking-wide text-muted-foreground/90 transition hover:bg-primary/15 hover:text-foreground"
+                  >
+                    <Link to={item.to} className="flex items-center justify-between">
+                      <span>{item.label}</span>
+                      {location.pathname === item.to && (
+                        <span className="h-2 w-2 rounded-full bg-primary" aria-hidden />
+                      )}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuSeparator className="my-1 bg-border/50" />
+                <DropdownMenuItem
+                  asChild
+                  className="cursor-pointer rounded-[calc(var(--radius)-4px)] px-3 py-2 text-sm font-semibold uppercase tracking-[0.18em] text-primary transition hover:bg-primary/15 hover:text-primary"
+                >
+                  <Link to="/consent">
+                    Launch Visit
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-          <div className="flex items-center gap-2">
             <Link to="/consent">
               <Button className="hidden h-9 rounded-full border border-primary-muted/60 bg-transparent px-4 text-xs font-semibold uppercase tracking-[0.2em] text-primary transition hover:bg-primary/20 md:flex">
                 Launch Visit
@@ -87,7 +118,7 @@ export function AppShell({ children }: Props) {
         </div>
       </header>
 
-      <main id="main" className="relative z-30 mx-auto w-full max-w-6xl px-6 pb-24 pt-14 sm:pt-16">
+      <main id="main" className="relative z-30 mx-auto w-full max-w-6xl px-6 pb-24 pt-6 sm:pt-10">
         {children}
       </main>
 

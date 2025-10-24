@@ -1,12 +1,8 @@
-import { motion } from "framer-motion";
+import { useCallback, useMemo } from "react";
+import { motion, useReducedMotion, cubicBezier, type Variants } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Disclaimer } from "@/components/ui/disclaimer";
 import { Activity, BrainCircuit, AudioLines, ShieldAlert, Timer, ClipboardSignature } from "lucide-react";
-
-const fadeIn = (delay = 0) => ({
-  initial: { opacity: 0, y: 32 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] } },
-});
 
 const heroHighlights = [
   {
@@ -18,8 +14,8 @@ const heroHighlights = [
     detail: "Clinician-led groups that want ambient capture, structured notes, and audit-ready evidence without surrendering oversight.",
   },
   {
-    title: "Why Us Now",
-    detail: "Clinical Copilot delivers transparent reasoning trails and safety guardrails that slot into existing visit rhythms.",
+    title: "Deployment Scope",
+    detail: "Supports multi-site rollouts with hybrid-cloud delivery and SOC 2-ready controls for compliance teams.",
   },
 ];
 
@@ -59,16 +55,37 @@ const workflowSteps = [
 ];
 
 const About = () => {
+  const shouldReduceMotion = useReducedMotion();
+  const easing = useMemo(() => cubicBezier(0.16, 1, 0.3, 1), []);
+
+  const fadeIn = useCallback(
+    (delay = 0): Variants =>
+      shouldReduceMotion
+        ? {
+            initial: { opacity: 0 },
+            animate: { opacity: 1, transition: { duration: 0.4, delay: Math.min(delay, 0.15) } },
+          }
+        : {
+            initial: { opacity: 0, y: 32 },
+            animate: {
+              opacity: 1,
+              y: 0,
+              transition: { duration: 0.7, delay, ease: easing },
+            },
+          },
+    [shouldReduceMotion, easing],
+  );
+
   return (
-    <div className="space-y-24">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-24 pb-24">
       <motion.section
-        className="relative overflow-hidden rounded-[var(--radius-lg)] border border-primary-muted/40 bg-gradient-hero px-6 py-20 sm:px-12 sm:py-28"
+        className="relative overflow-hidden rounded-[var(--radius-lg)] border border-primary-muted/40 bg-gradient-hero px-6 py-24 sm:px-12 sm:py-28"
         initial="initial"
         animate="animate"
       >
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -top-24 right-16 h-64 w-64 rounded-full bg-primary/30 blur-[140px]" aria-hidden />
-          <div className="absolute bottom-0 left-12 h-72 w-72 rounded-full bg-secondary/20 blur-[160px]" aria-hidden />
+          <div className="absolute -top-28 right-16 h-72 w-72 rounded-full bg-primary/30 blur-[150px]" aria-hidden />
+          <div className="absolute bottom-0 left-12 h-80 w-80 rounded-full bg-secondary/20 blur-[180px]" aria-hidden />
         </div>
 
         <motion.div variants={fadeIn(0)} className="flex flex-col gap-6 text-left">
@@ -76,48 +93,36 @@ const About = () => {
             Executive briefing
           </Badge>
           <motion.h1
-            className="max-w-3xl text-4xl font-semibold leading-tight sm:text-6xl"
+            className="max-w-[42ch] text-[2.9rem] font-semibold leading-[1.08] sm:text-[3.75rem]"
             variants={fadeIn(0.08)}
           >
             Clinical Copilot brings ambient intelligence to frontline clinics.
           </motion.h1>
-          <motion.p className="max-w-2xl text-base text-muted-foreground sm:text-lg" variants={fadeIn(0.12)}>
+          <motion.p className="max-w-[62ch] text-base leading-relaxed text-muted-foreground sm:text-lg" variants={fadeIn(0.12)}>
             This overview summarizes the product thesis, operating model, and delivery roadmap for the Clinical Copilot
             lab. Our mandate is to return time to clinicians, prove safety first, and deliver an audit-ready record of AI
             assistance.
           </motion.p>
         </motion.div>
 
-        <motion.div className="mt-10 grid gap-4 sm:grid-cols-3" variants={fadeIn(0.18)}>
+        <motion.div
+          className="mt-12 grid gap-4 sm:grid-cols-3"
+          variants={fadeIn(0.18)}
+        >
           {heroHighlights.map((item) => (
             <div
               key={item.title}
-              className="rounded-[var(--radius)] border border-border/60 bg-background/50 px-5 py-4 text-sm text-muted-foreground shadow-sm shadow-primary/10 backdrop-blur transition hover:border-primary-muted/60 hover:text-foreground"
+              className="group relative overflow-hidden rounded-[var(--radius)] border border-border/60 bg-background/60 px-6 py-5 text-sm text-muted-foreground shadow-sm shadow-primary/10 backdrop-blur transition-all motion-safe:hover:-translate-y-1 motion-safe:hover:shadow-md hover:border-primary-muted/70"
             >
-              <p className="text-[11px] uppercase tracking-[0.28em] text-subtle">{item.title}</p>
-              <p className="mt-3 leading-relaxed">{item.detail}</p>
+              <span className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+              <div className="relative space-y-3">
+                <p className="text-[11px] uppercase tracking-[0.28em] text-subtle">{item.title}</p>
+                <p className="leading-relaxed text-muted-foreground/90">{item.detail}</p>
+              </div>
             </div>
           ))}
         </motion.div>
 
-        <motion.div
-          className="mt-12 grid gap-4 text-sm text-muted-foreground sm:grid-cols-3"
-          variants={fadeIn(0.26)}
-        >
-          {[
-            { label: "Simulated scenarios", value: "11 ready-to-run cases" },
-            { label: "Safety interceptors", value: "19 red flag triggers" },
-            { label: "Latency budget", value: "< 80ms UI response" },
-          ].map((item) => (
-            <div
-              key={item.label}
-              className="rounded-[var(--radius-md)] border border-border/60 bg-surface/80 px-5 py-4 shadow-sm shadow-primary/20 backdrop-blur"
-            >
-              <span className="text-[11px] uppercase tracking-[0.28em] text-subtle">{item.label}</span>
-              <p className="mt-2 text-lg font-semibold text-foreground">{item.value}</p>
-            </div>
-          ))}
-        </motion.div>
       </motion.section>
 
       <section className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr]">
@@ -125,7 +130,7 @@ const About = () => {
           <motion.h2 className="text-3xl font-semibold sm:text-4xl" variants={fadeIn(0)}>
             Four pillars supporting accountable care
           </motion.h2>
-          <motion.p className="max-w-xl text-base text-muted-foreground sm:text-lg" variants={fadeIn(0.08)}>
+          <motion.p className="max-w-[60ch] text-base leading-relaxed text-muted-foreground sm:text-lg" variants={fadeIn(0.08)}>
             The platform is structured around operational pillars that align to a practice leader’s scorecard—efficiency,
             decision quality, safety compliance, and documentation accuracy.
           </motion.p>
@@ -136,11 +141,11 @@ const About = () => {
             {featureCards.map((card) => (
               <motion.div
                 key={card.title}
-                className="relative overflow-hidden rounded-[var(--radius)] border border-border/60 bg-surface/70 p-6 shadow-md shadow-primary/15 transition hover:-translate-y-1 hover:border-primary-muted hover:shadow-lg backdrop-blur"
-                whileHover={{ y: -6 }}
+                className="relative overflow-hidden rounded-[var(--radius)] border border-border/60 bg-surface/70 p-6 shadow-md shadow-primary/15 transition-all hover:border-primary-muted hover:shadow-lg backdrop-blur"
+                whileHover={shouldReduceMotion ? undefined : { y: -6 }}
                 transition={{ type: "spring", stiffness: 120, damping: 14 }}
               >
-                <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${card.accent} opacity-50`} />
+                <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${card.accent} opacity-60`} />
                 <div className="relative flex h-12 w-12 items-center justify-center rounded-[var(--radius-md)] bg-primary-soft/20 text-primary">
                   <card.icon className="h-6 w-6" />
                 </div>
@@ -207,30 +212,47 @@ const About = () => {
           </motion.div>
         </motion.div>
 
-        <motion.ol
-          className="mt-10 grid gap-6 lg:grid-cols-5"
-          initial="initial"
-          whileInView="animate"
-          viewport={{ once: true, amount: 0.2 }}
-        >
-          {workflowSteps.map((step, index) => (
-            <motion.li
-              key={step.title}
-              className="relative rounded-[var(--radius)] border border-border/60 bg-background/40 p-5 shadow-sm shadow-primary/10"
-              variants={fadeIn(index * 0.05)}
-            >
-              <span className="text-[11px] uppercase tracking-[0.28em] text-subtle">Phase {index + 1}</span>
-              <h3 className="mt-4 text-lg font-semibold text-foreground">{step.title}</h3>
-              <p className="mt-3 text-sm text-muted-foreground">{step.detail}</p>
-              {index < workflowSteps.length - 1 && (
-                <span className="absolute -right-3 top-1/2 hidden h-px w-6 bg-gradient-to-r from-primary-muted/40 to-transparent lg:block" />
-              )}
-            </motion.li>
-          ))}
-        </motion.ol>
+        <div className="relative mt-10 rounded-[var(--radius)] border border-border/60 bg-background/40 p-2 sm:p-4">
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-background/90 via-background/40 to-transparent lg:hidden" aria-hidden />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-background/90 via-background/40 to-transparent lg:hidden" aria-hidden />
+          <motion.ol
+            className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 pr-6 sm:gap-6 lg:grid lg:grid-cols-5 lg:overflow-visible lg:pb-0 lg:pr-0"
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            {workflowSteps.map((step, index) => (
+              <motion.li
+                key={step.title}
+                className="group relative min-w-[260px] snap-start rounded-[26px] border border-border/55 bg-gradient-to-br from-surface/60 via-background/55 to-background/35 p-6 text-left shadow-[0_22px_60px_-28px_rgba(12,38,72,0.45)] transition-colors hover:border-primary-muted/60 backdrop-blur lg:min-w-0 lg:p-7"
+                variants={fadeIn(index * 0.05)}
+              >
+                <div className="flex flex-col gap-5">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.3em] text-warning">
+                    Phase {index + 1}
+                  </span>
+                  <h3 className="text-2xl font-semibold text-foreground">
+                    {step.title}
+                  </h3>
+                  <p className="text-base leading-relaxed text-muted-foreground/90">
+                    {step.detail}
+                  </p>
+                </div>
+                {index < workflowSteps.length - 1 && (
+                  <>
+                    <span className="absolute right-0 top-1/2 hidden h-px w-12 translate-x-1/2 bg-gradient-to-r from-warning/50 via-warning/20 to-transparent lg:block" />
+                    <span className="absolute right-[-6px] top-1/2 hidden h-2 w-2 -translate-y-1/2 rounded-full bg-warning lg:block" />
+                  </>
+                )}
+              </motion.li>
+            ))}
+          </motion.ol>
+        </div>
       </section>
 
-      <section />
+      <footer className="rounded-[var(--radius-md)] border border-border/60 bg-surface/70 p-5 shadow-inner shadow-primary/5">
+        <Disclaimer className="text-xs leading-relaxed text-muted-foreground" />
+      </footer>
     </div>
   );
 };
