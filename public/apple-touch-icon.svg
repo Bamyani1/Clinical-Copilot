@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
+  <!-- Background -->
+  <rect width="180" height="180" rx="40" fill="#0b2740"/>
+  
+  <!-- Stethoscope icon (centered) -->
+  <g transform="translate(90, 90) scale(6)">
+    <circle cx="20" cy="10" r="2" fill="none" stroke="#ffffff" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M8 15a6 6 0 0 0 12 0v-3" fill="none" stroke="#ffffff" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1" fill="none" stroke="#ffffff" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M5 2v2" fill="none" stroke="#ffffff" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M11 2v2" fill="none" stroke="#ffffff" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

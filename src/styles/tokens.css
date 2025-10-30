@@ -1,0 +1,106 @@
+:root {
+  /* Base surfaces anchored in the Ink → Forest night palette */
+  --background: 205 28% 12%;
+  --foreground: 24 12% 92%;
+  --surface: 205 22% 16%;
+  --surface-strong: 205 20% 22%;
+
+  /* Layered surfaces */
+  --card: var(--surface);
+  --card-foreground: var(--foreground);
+  --popover: var(--surface-strong);
+  --popover-foreground: var(--foreground);
+
+  /* Brand palette rooted in the Ink + Forest pairing */
+  --primary: 174 32% 32%;
+  --primary-foreground: 24 12% 92%;
+  --primary-soft: 174 20% 42%;
+  --primary-muted: 175 16% 58%;
+
+  --secondary: 215 12% 45%;
+  --secondary-foreground: var(--foreground);
+  --secondary-muted: 215 12% 58%;
+
+  --accent: 175 20% 42%;
+  --accent-foreground: var(--primary-foreground);
+
+  /* Typographic helpers */
+  --muted: 205 16% 28%;
+  --muted-foreground: 215 18% 82%;
+  --subtle: 174 20% 40%;
+
+  /* Status palette tuned to the neutral/Forest spectrum */
+  --success: 174 32% 32%;
+  --success-foreground: var(--primary-foreground);
+  --success-light: 174 20% 58%;
+
+  --warning: 215 12% 65%;
+  --warning-foreground: var(--foreground);
+  --warning-light: 214 18% 72%;
+
+  --destructive: 205 22% 20%;
+  --destructive-foreground: var(--primary-foreground);
+
+  --red-flag: 8 80% 54%;
+  --red-flag-foreground: 0 0% 100%;
+  --red-flag-light: 8 80% 86%;
+
+  /* Confidence indicators follow the Forest gradient */
+  --confidence-high: 174 22% 44%;
+  --confidence-medium: 174 15% 56%;
+  --confidence-low: 174 12% 68%;
+
+  /* Form + borders */
+  --border: 205 20% 28%;
+  --input: 205 20% 24%;
+  --ring: 174 32% 32%;
+
+  /* Layout */
+  --radius: 1.25rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.75rem;
+
+  /* Typography scale */
+  --font-serif: "IBM Plex Serif", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-sans: "Figtree", "Outfit", "Manrope", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --type-display: 72;
+  --type-h1: 52;
+  --type-h2: 40;
+  --type-h3: 30;
+  --type-h4: 24;
+  --type-h5: 18;
+  --type-body: 16;
+  --type-caption: 13;
+
+  /* Spacing scale (8px grid) */
+  --space-0: 0px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Gradients */
+  --gradient-hero: radial-gradient(780px 420px at 20% 12%, hsl(174 32% 32% / 0.45), transparent 70%), radial-gradient(640px 360px at 82% 8%, hsl(215 16% 46% / 0.35), transparent 68%), linear-gradient(180deg, hsl(205 26% 18%), hsl(205 28% 12%));
+  --gradient-primary: linear-gradient(135deg, hsl(174 32% 34%), hsl(174 28% 28%));
+  --gradient-success: linear-gradient(135deg, hsl(174 32% 30%), hsl(174 28% 36%));
+  --gradient-warning: linear-gradient(135deg, hsl(215 12% 46%), hsl(215 12% 58%));
+  --gradient-subtle: linear-gradient(180deg, hsl(205 22% 18%), hsl(205 28% 12%));
+
+  /* Shadows */
+  --shadow-sm: 0 12px 32px -18px hsl(205 40% 4% / 0.55);
+  --shadow-md: 0 24px 54px -22px hsl(205 40% 6% / 0.6);
+  --shadow-lg: 0 30px 72px -26px hsl(174 38% 18% / 0.4);
+  --shadow-xl: 0 42px 96px -28px hsl(174 36% 22% / 0.45);
+
+  /* Motion */
+  --transition-fast: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-normal: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow: all 0.48s cubic-bezier(0.16, 1, 0.3, 1);
+}

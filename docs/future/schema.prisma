@@ -1,0 +1,109 @@
+// Prisma schema for Clinical Copilot
+// Healthcare-focused database design with PHI minimization
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      String   @default("clinician") // clinician, admin, nurse
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  clinics   UserClinic[]
+  visits    Visit[]
+  auditLogs AuditLog[]
+
+  @@map("users")
+}
+
+model Clinic {
+  id       String @id @default(cuid())
+  name     String
+  locale   String @default("en-US")
+  settings Json?
+
+  // Relationships
+  users  UserClinic[]
+  visits Visit[]
+
+  @@map("clinics")
+}
+
+model UserClinic {
+  userId   String
+  clinicId String
+  role     String @default("member") // member, admin
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clinic Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  @@id([userId, clinicId])
+  @@map("user_clinics")
+}
+
+model Visit {
+  id        String   @id @default(cuid())
+  clinicId  String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Visit context (minimal PHI)
+  locale    String   @default("en-US")
+  consented Boolean  @default(false)
+  status    String   @default("active") // active, completed, cancelled
+
+  // Clinical data (structured JSON)
+  caseData    Json? // demographics, vitals, allergies, meds, hpi, ros, exam
+  transcript  Json? // diarized transcript with timestamps
+  suggestions Json? // differential, workup, medications with confidence
+  redFlags    Json? // active red flags and triggers
+  soapNote    Json? // structured SOAP note sections
+  patientSummary Json? // patient-friendly instructions
+
+  // Relationships
+  clinic    Clinic     @relation(fields: [clinicId], references: [id])
+  user      User       @relation(fields: [userId], references: [id])
+  auditLogs AuditLog[]
+
+  @@map("visits")
+}
+
+model Guideline {
+  id        String   @id @default(cuid())
+  key       String   @unique // e.g., "uri_cough", "sore_throat"
+  title     String
+  category  String   // complaint category
+  content   String   // markdown content
+  version   String   @default("1.0")
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("guidelines")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  visitId   String?
+  userId    String?
+  action    String   // "visit_started", "suggestion_accepted", "red_flag_triggered"
+  details   Json?    // action-specific metadata
+  timestamp DateTime @default(now())
+
+  // Relationships
+  visit Visit? @relation(fields: [visitId], references: [id])
+  user  User?  @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}

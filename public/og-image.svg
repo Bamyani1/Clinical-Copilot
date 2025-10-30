@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <!-- Gradient background -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0b2740;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a4470;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+  
+  <!-- Stethoscope icon (centered, large) -->
+  <g transform="translate(600, 315) scale(15)">
+    <circle cx="20" cy="10" r="2" fill="none" stroke="#ffffff" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M8 15a6 6 0 0 0 12 0v-3" fill="none" stroke="#ffffff" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1" fill="none" stroke="#ffffff" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M5 2v2" fill="none" stroke="#ffffff" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M11 2v2" fill="none" stroke="#ffffff" stroke-width="0.3" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  
+  <!-- Title text -->
+  <text x="600" y="450" text-anchor="middle" font-family="Outfit, -apple-system, system-ui, sans-serif" font-size="72" font-weight="700" fill="#ffffff">Clinical Copilot</text>
+  
+  <!-- Subtitle -->
+  <text x="600" y="510" text-anchor="middle" font-family="Outfit, -apple-system, system-ui, sans-serif" font-size="32" font-weight="400" fill="#a7c4ff" opacity="0.9">Clinical Decision Support</text>
+</svg>
