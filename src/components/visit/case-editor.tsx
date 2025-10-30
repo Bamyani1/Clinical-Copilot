@@ -7,10 +7,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useVisitStore } from "@/lib/store";
 import type { CaseData, TranscriptEntry } from "@/lib/types";
-import { createReasoner } from "@/lib/services/mock-reasoner";
+import { createReasoner, FixtureLoadError, type ScenarioFixtureFallback } from "@/lib/services/mock-reasoner";
 import { cn } from "@/lib/utils";
+import type { CaseFixture } from "@/fixtures/types";
 
 const parseOptionalNumber = (value: string): number | undefined => {
   const trimmed = value.trim();
@@ -33,6 +35,7 @@ export function CaseEditor() {
   const [isExtracting, setIsExtracting] = useState(false);
   const [reasoner] = useState(() => createReasoner());
   const lastExtractionCountRef = useRef(0);
+  const [fixtureStatus, setFixtureStatus] = useState<{ tone: "warning" | "error"; message: string } | null>(null);
 
   const removalPillClass =
     "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
@@ -44,6 +47,7 @@ export function CaseEditor() {
       }
 
       setIsExtracting(true);
+      setFixtureStatus(null);
       try {
         const transcriptText = entries.map((entry) => `${entry.speaker}: ${entry.text}`).join("\n");
         const { caseData: currentCase, scenarioId: activeScenario } = useVisitStore.getState();
@@ -54,9 +58,32 @@ export function CaseEditor() {
         });
 
         updateCaseData(response.caseData);
+        setFixtureStatus(null);
         lastExtractionCountRef.current = entries.length;
       } catch (error) {
         console.error("Failed to extract case data:", error);
+        if (error instanceof FixtureLoadError) {
+          if (error.fallback) {
+            const fallback = error.fallback as ScenarioFixtureFallback<CaseFixture>;
+            updateCaseData(fallback.fixture.caseData);
+            setFixtureStatus({
+              tone: "warning",
+              message: `Primary case fixture "${error.identifier}" is unavailable. Showing fallback scenario "${fallback.scenarioId}".`,
+            });
+          } else {
+            setFixtureStatus({
+              tone: "error",
+              message: "Unable to load clinical fixtures. Please refresh or notify the team before continuing.",
+            });
+          }
+          lastExtractionCountRef.current = entries.length;
+          return;
+        }
+        setFixtureStatus({
+          tone: "error",
+          message: "An unexpected error occurred while extracting case data. Manual entry is still available.",
+        });
+        lastExtractionCountRef.current = entries.length;
       } finally {
         setIsExtracting(false);
       }
@@ -137,6 +164,15 @@ export function CaseEditor() {
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 overflow-y-auto space-y-6">
+        {fixtureStatus && (
+          <Alert
+            variant={fixtureStatus.tone === "error" ? "destructive" : "default"}
+            className="border-dashed border-border/60 bg-background/80"
+          >
+            <AlertCircle className="h-4 w-4" aria-hidden />
+            <AlertDescription>{fixtureStatus.message}</AlertDescription>
+          </Alert>
+        )}
         {/* Demographics */}
         <div className="space-y-3">
           <h3 className="font-semibold text-sm flex items-center gap-2">

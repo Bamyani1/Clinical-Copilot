@@ -35,7 +35,8 @@ export function AppShell({ children }: Props) {
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-gradient-subtle text-foreground antialiased">
+    <div className="relative min-h-screen overflow-hidden bg-gradient-subtle text-foreground antialiased">
+      <div className="pointer-events-none absolute inset-0 -z-10 opacity-95 [background:radial-gradient(1400px_800px_at_10%_10%,_hsl(var(--primary)_/_0.48),_transparent_72%),radial-gradient(1100px_680px_at_85%_5%,_hsl(var(--secondary)_/_0.42),_transparent_68%),radial-gradient(900px_520px_at_50%_108%,_hsl(var(--accent)_/_0.28),_transparent_75%),linear-gradient(180deg,_hsl(var(--surface))_0%,_hsl(var(--background))_100%)]" />
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:top-6 focus:left-6 focus:z-50 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-lg transition"

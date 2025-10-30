@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, type RefObject } from "react";
-import { Brain, TestTube, Pill, AlertTriangle, CheckCircle2, X, Loader2 } from "lucide-react";
+import { Brain, TestTube, Pill, AlertTriangle, CheckCircle2, X, Loader2, HelpCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,8 +7,10 @@ import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useVisitStore } from "@/lib/store";
-import { createReasoner } from "@/lib/services/mock-reasoner";
+import { createReasoner, FixtureLoadError, type ScenarioFixtureFallback } from "@/lib/services/mock-reasoner";
+import type { SuggestionFixture } from "@/fixtures/types";
 
 export function SuggestionPanel() {
   const {
@@ -35,6 +37,7 @@ export function SuggestionPanel() {
     workup: [],
     medications: [],
   });
+  const [fixtureStatus, setFixtureStatus] = useState<{ tone: "warning" | "error"; message: string } | null>(null);
   const lastAutoTriggerRef = useRef<string>("");
 
   const hasChiefComplaint = Boolean(caseData.hpi?.chiefComplaint);
@@ -55,18 +58,20 @@ export function SuggestionPanel() {
     }
   };
 
-  const generateSuggestions = useCallback(async () => {
-    if (!caseData.hpi?.chiefComplaint) return;
-
-    setIsGenerating(true);
-    try {
-      const response = await reasoner.generateReasoning({
-        caseData,
-        scenarioId,
-        guidelines: [],
-      });
-
-      const nextDifferentials = response.differentials
+  const applySuggestionPayload = useCallback(
+    (payload: {
+      differentials: Array<{ diagnosis: string; confidence: number; rationale: string; guidelines?: string[] }>;
+      workup: Array<{ test: string; category: string; indication: string; priority: "urgent" | "routine"; guidelines?: string[] }>;
+      medications: Array<{
+        drugClass: string;
+        indication: string;
+        contraindications?: string[];
+        requiresConfirmation?: boolean;
+        guidelines?: string[];
+      }>;
+      redFlags: Array<{ trigger: string; description: string; severity: "critical" | "urgent" | "moderate"; active: boolean }>;
+    }) => {
+      const nextDifferentials = payload.differentials
         .map((diff, index) => ({
           id: `diff_${index}`,
           diagnosis: diff.diagnosis,
@@ -76,7 +81,7 @@ export function SuggestionPanel() {
         }))
         .sort((a, b) => b.confidence - a.confidence);
 
-      const nextWorkup = response.workup
+      const nextWorkup = payload.workup
         .map((work, index) => ({
           id: `workup_${index}`,
           test: work.test,
@@ -87,7 +92,7 @@ export function SuggestionPanel() {
         }))
         .sort((a, b) => (a.priority === b.priority ? 0 : a.priority === "urgent" ? -1 : 1));
 
-      const nextMedications = response.medications
+      const nextMedications = payload.medications
         .map((med, index) => ({
           id: `med_${index}`,
           drugClass: med.drugClass,
@@ -98,7 +103,7 @@ export function SuggestionPanel() {
         }))
         .sort((a, b) => a.drugClass.localeCompare(b.drugClass));
 
-      const nextRedFlags = response.redFlags.map((flag, index) => ({
+      const nextRedFlags = payload.redFlags.map((flag, index) => ({
         id: `flag_${index}`,
         trigger: flag.trigger,
         description: flag.description,
@@ -116,8 +121,49 @@ export function SuggestionPanel() {
         workup: prev.workup.filter((id) => nextWorkup.some((item) => item.id === id)),
         medications: prev.medications.filter((id) => nextMedications.some((item) => item.id === id)),
       }));
+    },
+    [setDifferentials, setMedicationSuggestions, setRedFlags, setWorkupSuggestions],
+  );
+
+  const generateSuggestions = useCallback(async () => {
+    if (!caseData.hpi?.chiefComplaint) return;
+
+    setIsGenerating(true);
+    setFixtureStatus(null);
+    try {
+      const response = await reasoner.generateReasoning({
+        caseData,
+        scenarioId,
+        guidelines: [],
+      });
+      applySuggestionPayload(response);
     } catch (error) {
       console.error("Failed to generate suggestions:", error);
+      if (error instanceof FixtureLoadError) {
+        if (error.fallback) {
+          const fallback = error.fallback as ScenarioFixtureFallback<SuggestionFixture>;
+          applySuggestionPayload({
+            differentials: fallback.fixture.differentials,
+            workup: fallback.fixture.workup,
+            medications: fallback.fixture.medications,
+            redFlags: fallback.fixture.redFlags,
+          });
+          setFixtureStatus({
+            tone: "warning",
+            message: `AI suggestions for "${error.identifier}" are unavailable. Showing fallback scenario "${fallback.scenarioId}".`,
+          });
+        } else {
+          setFixtureStatus({
+            tone: "error",
+            message: "AI suggestions are unavailable because required fixtures could not be loaded.",
+          });
+        }
+        return;
+      }
+      setFixtureStatus({
+        tone: "error",
+        message: "An unexpected error prevented the AI suggestions from loading. Please continue with clinical judgment.",
+      });
     } finally {
       setIsGenerating(false);
     }
@@ -125,11 +171,7 @@ export function SuggestionPanel() {
     caseData,
     scenarioId,
     reasoner,
-    setDifferentials,
-    setMedicationSuggestions,
-    setRedFlags,
-    setWorkupSuggestions,
-    setAcceptedItems,
+    applySuggestionPayload,
   ]);
 
   useEffect(() => {
@@ -199,12 +241,38 @@ export function SuggestionPanel() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg font-semibold">
           <Brain className="h-5 w-5" />
-          AI Suggestions
-          {isGenerating && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+          <span className="flex items-center gap-2">
+            AI Suggestions
+            {isGenerating && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+          </span>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                className="ml-auto inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background/50 text-muted-foreground transition hover:border-primary-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                aria-label="How to interpret AI suggestions"
+              >
+                <HelpCircle className="h-4 w-4" aria-hidden />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent align="end" className="max-w-sm text-left leading-relaxed">
+              Confidence bars reflect the model&apos;s certainty. Priority badges mark urgent follow-up versus routine tasks.
+              Use the accept buttons to capture items that should flow into documentation.
+            </TooltipContent>
+          </Tooltip>
         </CardTitle>
         <p className="text-sm text-muted-foreground">Generated automatically from the evolving clinical case data.</p>
       </CardHeader>
       <CardContent className="flex-1 space-y-6">
+        {fixtureStatus && (
+          <Alert
+            variant={fixtureStatus.tone === "error" ? "destructive" : "default"}
+            className="border-dashed border-border/60 bg-background/80"
+          >
+            <AlertTriangle className="h-4 w-4" aria-hidden />
+            <AlertDescription>{fixtureStatus.message}</AlertDescription>
+          </Alert>
+        )}
         <Accordion type="single" collapsible defaultValue="differentials" className="space-y-4">
           <AccordionItem
             value="differentials"
@@ -239,9 +307,16 @@ export function SuggestionPanel() {
                             <p className="mt-2 text-xs text-muted-foreground">{diff.rationale}</p>
                           </div>
                           <div className="flex flex-col items-end gap-2">
-                            <Badge variant="outline" className={`text-xs ${getConfidenceColor(diff.confidence)}`}>
-                              {Math.round(diff.confidence * 100)}%
-                            </Badge>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Badge variant="outline" className={`text-xs ${getConfidenceColor(diff.confidence)}`}>
+                                  {Math.round(diff.confidence * 100)}%
+                                </Badge>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                Confidence indicates the model&apos;s relative certainty in this diagnosis.
+                              </TooltipContent>
+                            </Tooltip>
                             <Button
                               size="icon"
                               variant={acceptedItems.differentials.includes(diff.id) ? "default" : "outline"}
@@ -295,9 +370,18 @@ export function SuggestionPanel() {
                         <div className="flex items-start justify-between gap-3">
                           <div>
                             <p className="text-sm font-semibold text-foreground">{workup.test}</p>
-                            <Badge variant="outline" className={`mt-2 text-xs ${getPriorityColor(workup.priority)}`}>
-                              {workup.priority} • {workup.category}
-                            </Badge>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Badge variant="outline" className={`mt-2 text-xs ${getPriorityColor(workup.priority)}`}>
+                                  {workup.priority} • {workup.category}
+                                </Badge>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                {workup.priority === "urgent"
+                                  ? "Urgent items should be actioned during the visit."
+                                  : "Routine items can be scheduled after the encounter."}
+                              </TooltipContent>
+                            </Tooltip>
                           </div>
                           <Button
                             size="icon"
@@ -409,22 +493,40 @@ export function SuggestionPanel() {
                       <p className="mt-2 text-xs text-muted-foreground">{flag.description}</p>
                     </div>
                     <div className="flex flex-col items-end gap-2 text-xs">
-                      <Badge
-                        variant="outline"
-                        className={
-                          flag.severity === "critical"
-                            ? "border-red-flag text-red-flag"
-                            : "border-warning text-warning"
-                        }
-                      >
-                        {flag.severity === "critical" ? "Critical" : "Urgent"}
-                      </Badge>
-                      <Badge
-                        variant={flag.active ? "destructive" : "outline"}
-                        className={flag.active ? "bg-red-flag text-red-flag-foreground" : "text-muted-foreground"}
-                      >
-                        {flag.active ? "Active" : "Cleared"}
-                      </Badge>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Badge
+                            variant="outline"
+                            className={
+                              flag.severity === "critical"
+                                ? "border-red-flag text-red-flag"
+                                : "border-warning text-warning"
+                            }
+                          >
+                            {flag.severity === "critical" ? "Critical" : "Urgent"}
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {flag.severity === "critical"
+                            ? "Critical flags require immediate escalation."
+                            : "Urgent flags need prompt evaluation during this visit."}
+                        </TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Badge
+                            variant={flag.active ? "destructive" : "outline"}
+                            className={flag.active ? "bg-red-flag text-red-flag-foreground" : "text-muted-foreground"}
+                          >
+                            {flag.active ? "Active" : "Cleared"}
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {flag.active
+                            ? "Active red flags remain unresolved for this patient."
+                            : "Cleared flags have been addressed or ruled out."}
+                        </TooltipContent>
+                      </Tooltip>
                     </div>
                   </div>
                 </div>

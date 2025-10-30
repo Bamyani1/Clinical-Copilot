@@ -11,7 +11,32 @@ import {
   type ScenarioId,
   type CaseData,
 } from "@/lib/types";
-import { DEFAULT_SCENARIO_ID, caseFixtures, guidelineFixtures, scenarioFromTranscript, suggestionFixtures } from "@/fixtures";
+import {
+  DEFAULT_SCENARIO_ID,
+  caseFixtures,
+  guidelineFixtures,
+  scenarioFromTranscript,
+  suggestionFixtures,
+} from "@/fixtures";
+import type { CaseFixture, SuggestionFixture } from "@/fixtures/types";
+
+type FixtureKind = "case" | "suggestion";
+
+export type ScenarioFixtureFallback<T> = {
+  scenarioId: ScenarioId;
+  fixture: T;
+};
+
+export class FixtureLoadError<T = unknown> extends Error {
+  constructor(
+    public kind: FixtureKind,
+    public identifier: string,
+    public fallback?: T,
+  ) {
+    super(`Unable to load ${kind} fixture "${identifier}".`);
+    this.name = "FixtureLoadError";
+  }
+}
 
 const clone = <T>(value: T): T =>
   typeof structuredClone === "function" ? structuredClone(value) : JSON.parse(JSON.stringify(value));
@@ -30,6 +55,24 @@ const sanitizeMedKey = (key: string) => key.trim().toLowerCase();
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
+
+const ensureScenarioFixture = <T extends CaseFixture | SuggestionFixture>(
+  fixtures: Record<ScenarioId, T>,
+  scenarioId: ScenarioId,
+  kind: FixtureKind,
+): T => {
+  const fixture = fixtures[scenarioId];
+  if (fixture) {
+    return fixture;
+  }
+
+  const fallback = fixtures[DEFAULT_SCENARIO_ID];
+  throw new FixtureLoadError<ScenarioFixtureFallback<T>>(
+    kind,
+    scenarioId,
+    fallback ? { scenarioId: DEFAULT_SCENARIO_ID, fixture: fallback } : undefined,
+  );
+};
 
 const mergeCaseData = (base: CaseData, incoming: CaseData): CaseData => {
   const result: CaseData = clone(base);
@@ -67,7 +110,7 @@ class MockReasoner implements LLMProvider {
 
   async extractCase(request: CaseExtractionRequest): Promise<CaseExtractionResponse> {
     const scenarioId = resolveScenario(request.transcript, request.scenarioId);
-    const fixture = caseFixtures[scenarioId];
+    const fixture = ensureScenarioFixture(caseFixtures, scenarioId, "case");
     const merged = request.existingCase ? mergeCaseData(fixture.caseData, request.existingCase) : fixture.caseData;
 
     return {
@@ -79,7 +122,7 @@ class MockReasoner implements LLMProvider {
 
   async generateReasoning(request: ReasoningRequest): Promise<ReasoningResponse> {
     const scenarioId = resolveScenario(undefined, request.scenarioId);
-    const fixture = suggestionFixtures[scenarioId];
+    const fixture = ensureScenarioFixture(suggestionFixtures, scenarioId, "suggestion");
 
     return {
       scenarioId,
@@ -92,7 +135,7 @@ class MockReasoner implements LLMProvider {
 
   async checkSafety(request: SafetyCheckRequest): Promise<SafetyCheckResponse> {
     const scenarioId = resolveScenario(undefined, request.scenarioId);
-    const fixture = suggestionFixtures[scenarioId];
+    const fixture = ensureScenarioFixture(suggestionFixtures, scenarioId, "suggestion");
     const key = sanitizeMedKey(request.medicationClass);
     const safetyEntry =
       Object.entries(fixture.safetyChecks).find(([name]) => sanitizeMedKey(name) === key)?.[1] ?? {};

@@ -22,4 +22,19 @@
     background-repeat: no-repeat;
     background-size: 100% 100%;
   }
+
+  :focus-visible {
+    outline: 3px solid hsl(var(--ring));
+    outline-offset: 3px;
+  }
+
+  :where(button, [role="button"], [href], input, select, textarea):focus-visible {
+    box-shadow: 0 0 0 3px hsl(var(--ring) / 0.45);
+    border-color: hsl(var(--ring));
+  }
+
+  :where(button, [role="button"], [href], input, select, textarea):focus:not(:focus-visible) {
+    outline: none;
+    box-shadow: none;
+  }
 }

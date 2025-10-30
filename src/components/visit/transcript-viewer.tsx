@@ -55,7 +55,7 @@ export function TranscriptViewer() {
   }, [transcript.length]);
 
   return (
-    <Card className="flex h-[28rem] flex-col overflow-hidden lg:h-[36rem]">
+    <Card className="flex min-h-[18rem] w-full flex-col overflow-hidden max-h-[65vh] lg:h-[36rem] lg:max-h-none">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg font-semibold">
           <FileText className="h-5 w-5" />
