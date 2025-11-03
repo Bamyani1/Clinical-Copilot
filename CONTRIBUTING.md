@@ -19,7 +19,7 @@ Thanks for helping keep the Clinical Copilot demo deterministic, type-safe, and 
 - TypeScript only—avoid `any`. Prefer shared types from `src/lib/types.ts`.
 - UI primitives live in `src/components/ui/`; keep only the pieces that ship in the demo.
 - Tailwind utility classes go through `cn` (`src/lib/utils.ts`); do not introduce custom CSS unless required by the design tokens.
-- Ambient rendering must honour `prefers-reduced-motion` and low-power detection.
+- Honour `prefers-reduced-motion` and existing design tokens when adding animations or gradients.
 
 ## Required Checks Before Opening a PR
 
@@ -40,13 +40,13 @@ If dependencies change, refresh (`npm run audit:deps`) and call out any intentio
 - Walk through Home → Consent → Visit (exercise every scenario) → Visit Complete → Reset.
 - Confirm `caseData` and the SOAP note update deterministically every third transcript entry.
 - Verify `localStorage` only contains `locale`, `caseData`, and `soapNote`.
-- Simulate `prefers-reduced-motion` / low-power mode and ensure the ambient layer falls back gracefully.
+- Simulate `prefers-reduced-motion` / low-power mode and ensure gradients or transitions remain accessible.
 - Validate the 404 page renders with a working “Go home” link.
 
 ## Bundle & Audit Artifacts
 
 - Dead-code sweep: `npm run audit:dead-code` (uses `knip` + `ts-prune`).
-- Dependency check: `npm run audit:deps` (ignore `autoprefixer`, `postcss`, `postprocessing` peer warnings).
+- Dependency check: `npm run audit:deps` (ignore `autoprefixer`, `postcss` peer warnings).
 - Bundle report: `npm run analyze:bundle` writes `stats/bundle.html`; attach or summarize changes when the bundle shifts significantly.
 
 ## Additional Notes

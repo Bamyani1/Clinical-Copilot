@@ -2,13 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Stethoscope } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { AudioCapture } from "@/components/visit/audio-capture";
 import { TranscriptViewer } from "@/components/visit/transcript-viewer";
 import { CaseEditor } from "@/components/visit/case-editor";
 import { SuggestionPanel } from "@/components/visit/suggestion-panel";
 import { useVisitStore } from "@/lib/store";
 import type { CaseData } from "@/lib/types";
+import "@/styles/visit-layout.css";
+import { useTranslation } from "react-i18next";
 
 const isMeaningfulValue = (value: unknown): boolean => {
   if (value === null || value === undefined) return false;
@@ -30,6 +31,7 @@ export default function Visit() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { visitId, consented, caseData } = useVisitStore();
+  const { t } = useTranslation("visit");
   const [activeTab, setActiveTab] = useState<"transcript" | "case" | "suggestions">("transcript");
   const hasCaseData = useMemo(() => hasMeaningfulCaseData(caseData), [caseData]);
 
@@ -51,11 +53,11 @@ export default function Visit() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-8">
+    <main className="visit-page">
       {/* Mobile layout */}
-      <div className="flex flex-col gap-6 lg:hidden">
+      <div className="visit-mobile flex flex-col gap-6 lg:hidden">
         <AudioCapture />
-        
+
         {/* Tab navigation - moved to top */}
         <div className="flex overflow-hidden rounded-[var(--radius)] border border-border/60 bg-card/95 shadow-lg shadow-primary/20 backdrop-blur">
           <Button
@@ -63,21 +65,21 @@ export default function Visit() {
             className="flex-1 rounded-none first:rounded-l-[var(--radius)] last:rounded-r-[var(--radius)]"
             onClick={() => setActiveTab("transcript")}
           >
-            Transcript
+            {t("page.tabs.transcript")}
           </Button>
           <Button
             variant={activeTab === "case" ? "default" : "ghost"}
             className="flex-1 rounded-none first:rounded-l-[var(--radius)] last:rounded-r-[var(--radius)]"
             onClick={() => setActiveTab("case")}
           >
-            Case data
+            {t("page.tabs.case")}
           </Button>
           <Button
             variant={activeTab === "suggestions" ? "default" : "ghost"}
             className="flex-1 rounded-none first:rounded-l-[var(--radius)] last:rounded-r-[var(--radius)]"
             onClick={() => setActiveTab("suggestions")}
           >
-            Suggestions
+            {t("page.tabs.suggestions")}
           </Button>
         </div>
 
@@ -90,18 +92,26 @@ export default function Visit() {
       </div>
 
       {/* Desktop layout */}
-      <section className="hidden min-h-0 gap-6 lg:grid lg:grid-cols-12 lg:gap-8">
-        <div className="flex w-full flex-col space-y-6 lg:col-span-4">
-          <AudioCapture />
-          <TranscriptViewer />
+      <section className="visit-app-layout hidden lg:grid">
+        <div className="visit-column visit-column--left">
+          <div className="visit-card visit-card--audio">
+            <AudioCapture />
+          </div>
+          <div className="visit-card visit-card--transcript">
+            <TranscriptViewer />
+          </div>
         </div>
 
-        <div className="flex min-h-0 w-full lg:col-span-4">
-          <CaseEditor />
+        <div className="visit-column">
+          <div className="visit-card visit-card--case">
+            <CaseEditor />
+          </div>
         </div>
 
-        <div className="flex min-h-0 w-full lg:col-span-4">
-          <SuggestionPanel />
+        <div className="visit-column">
+          <div className="visit-card visit-card--support">
+            <SuggestionPanel />
+          </div>
         </div>
       </section>
 
@@ -111,9 +121,9 @@ export default function Visit() {
             <Stethoscope className="h-6 w-6" />
           </span>
           <div className="leading-tight">
-            <p className="text-[11px] uppercase tracking-[0.3em] text-subtle">Clinical Copilot</p>
-            <h1 className="text-xl font-semibold text-foreground sm:text-2xl">Active Clinical Visit</h1>
-            <p className="text-sm text-muted-foreground">Visit ID: {visitId}</p>
+            <p className="text-[11px] uppercase tracking-[0.3em] text-subtle">{t("page.header.brand")}</p>
+            <h1 className="text-xl font-semibold text-foreground sm:text-2xl">{t("page.header.title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("page.header.visitId", { id: visitId })}</p>
           </div>
         </div>
         <Button
@@ -123,14 +133,14 @@ export default function Visit() {
           onClick={handleCompleteVisit}
           disabled={!hasCaseData}
         >
-          Complete Visit
+          {t("page.header.complete")}
         </Button>
       </section>
       {!hasCaseData && (
         <p className="text-xs text-muted-foreground text-right">
-          Add case details before completing the visit.
+          {t("page.header.incompleteNotice")}
         </p>
       )}
-    </div>
+    </main>
   );
 }

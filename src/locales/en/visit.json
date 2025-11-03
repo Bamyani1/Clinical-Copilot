@@ -1,0 +1,178 @@
+{
+  "page": {
+    "header": {
+      "brand": "Clinical Copilot",
+      "title": "Active Clinical Visit",
+      "visitId": "Visit ID: {{id}}",
+      "complete": "Complete Visit",
+      "incompleteNotice": "Add case details before completing the visit."
+    },
+    "tabs": {
+      "transcript": "Transcript",
+      "case": "Case data",
+      "suggestions": "Suggestions"
+    }
+  },
+  "audioCapture": {
+    "title": "Audio Capture",
+    "errors": {
+      "noScenario": "Scenario must be selected before recording.",
+      "startFailed": "Recording didn't start. Check microphone permissions and try again.",
+      "stopFailed": "Recording didn't stop. Try again."
+    },
+    "controls": {
+      "start": "Start Recording",
+      "stop": "Stop Recording",
+      "status": "Recording in progress."
+    },
+    "mock": {
+      "label": "Mock scenarios (development):"
+    }
+  },
+  "transcript": {
+    "title": "Live Transcript",
+    "entries": "{{count}} entry",
+    "entries_plural": "{{count}} entries",
+    "empty": {
+      "title": "No transcript yet.",
+      "subtitle": "Start recording to capture the conversation."
+    },
+    "speaker": {
+      "doctor": "Doctor",
+      "patient": "Patient"
+    },
+    "confidence": "Transcript confidence {{value}} percent"
+  },
+  "caseEditor": {
+    "title": "Clinical Case Data",
+    "status": {
+      "fallback": "Primary case fixture \"{{id}}\" is unavailable. Showing fallback scenario \"{{fallbackId}}\".",
+      "missing": "Unable to load clinical fixtures. Please refresh or notify the team before continuing.",
+      "unexpected": "An unexpected error occurred while extracting case data. Manual entry is still available."
+    },
+    "sections": {
+      "demographics": "Demographics",
+      "vitals": "Vital Signs",
+      "hpi": "History of Present Illness",
+      "allergies": "Allergies",
+      "medications": "Current Medications"
+    },
+    "fields": {
+      "age": {
+        "label": "Age",
+        "placeholder": "Years"
+      },
+      "sex": {
+        "label": "Sex",
+        "placeholder": "Select",
+        "options": {
+          "male": "Male",
+          "female": "Female",
+          "other": "Other"
+        }
+      },
+      "temperature": {
+        "label": "Temperature (°F)",
+        "placeholder": "98.6"
+      },
+      "heartRate": {
+        "label": "Heart Rate",
+        "placeholder": "BPM"
+      },
+      "bloodPressure": {
+        "label": "Blood Pressure",
+        "placeholder": "120/80"
+      },
+      "spo2": {
+        "label": "SpO₂ (%)",
+        "placeholder": "98"
+      },
+      "chiefComplaint": {
+        "label": "Chief Complaint",
+        "placeholder": "Primary concern"
+      },
+      "onset": {
+        "label": "Onset (days)",
+        "placeholder": "Days"
+      },
+      "addAllergy": "Add allergy (press Enter)",
+      "addMedication": "Add medication (press Enter)",
+      "removeAllergy": "Remove allergy {{value}}",
+      "removeMedication": "Remove medication {{value}}"
+    },
+    "empty": {
+      "allergies": "No allergies added yet.",
+      "medications": "No medications added yet."
+    },
+    "lists": {
+      "tokens": {
+        "remove": "✕"
+      }
+    }
+  },
+  "suggestionPanel": {
+    "title": "Clinical Suggestions",
+    "tooltip": {
+      "trigger": "How to read these suggestions",
+      "content": "Confidence bars reflect how strongly each option is prioritized for the case. Priority badges mark urgent follow-up versus routine tasks. Use the accept buttons to capture items that should flow into documentation."
+    },
+    "subtitle": "Generated automatically from the evolving clinical case data.",
+    "status": {
+      "fallback": "Suggestions for \"{{id}}\" are unavailable. Showing fallback scenario \"{{fallbackId}}\".",
+      "missing": "Suggestions are unavailable because required fixtures could not be loaded.",
+      "unexpected": "An unexpected error prevented the suggestions from loading. Please continue with clinical judgment."
+    },
+    "accordion": {
+      "differentials": "Differential diagnoses",
+      "workup": "Workup recommendations",
+      "medications": "Medication suggestions",
+      "empty": {
+        "chiefComplaint": "Add a chief complaint to start generating suggestions.",
+        "differentials": "No differential diagnoses yet.",
+        "workup": "No workup recommendations yet.",
+        "medications": "No medication suggestions yet."
+      },
+      "counts": {
+        "differentials": "{{count}}",
+        "workup": "{{count}}",
+        "medications": "{{count}}"
+      },
+      "tooltips": {
+        "confidence": "Confidence indicates how strongly this option is prioritized for the case.",
+        "priorityUrgent": "Urgent items should be actioned during the visit.",
+        "priorityRoutine": "Routine items can be scheduled after the encounter."
+      },
+      "actions": {
+        "accept": "Accept",
+        "reject": "Dismiss"
+      },
+      "priority": {
+        "urgent": "urgent",
+        "routine": "routine"
+      },
+      "contraindications": "Contraindications: {{items}}",
+      "redFlags": {
+        "title": "Red flag monitor",
+        "none": "No red flags captured yet.",
+        "activeCount": "{{count}} active",
+        "severity": {
+          "critical": "Critical",
+          "urgent": "Urgent",
+          "criticalHelp": "Critical flags require immediate escalation.",
+          "urgentHelp": "Urgent flags need prompt evaluation during this visit."
+        },
+        "status": {
+          "active": "Active",
+          "cleared": "Cleared",
+          "activeHelp": "Active red flags remain unresolved for this patient.",
+          "clearedHelp": "Cleared flags have been addressed or ruled out."
+        }
+      }
+    },
+    "coachmark": {
+      "title": "Decision support in action",
+      "body": "Clinical Copilot combines the transcript, structured case data, and guideline library to surface what matters most. Accept items to flow them directly into the documentation workflow.",
+      "dismiss": "Got it"
+    }
+  }
+}

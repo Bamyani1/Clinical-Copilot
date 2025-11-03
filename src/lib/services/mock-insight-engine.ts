@@ -1,7 +1,7 @@
 import {
   type CaseExtractionRequest,
   type CaseExtractionResponse,
-  type LLMProvider,
+  type InsightEngine,
   type NoteGenerationRequest,
   type NoteGenerationResponse,
   type ReasoningRequest,
@@ -105,7 +105,7 @@ const mergeCaseData = (base: CaseData, incoming: CaseData): CaseData => {
   return result;
 };
 
-class MockReasoner implements LLMProvider {
+class MockInsightEngine implements InsightEngine {
   name = "mock";
 
   async extractCase(request: CaseExtractionRequest): Promise<CaseExtractionResponse> {
@@ -261,4 +261,4 @@ class MockReasoner implements LLMProvider {
   }
 }
 
-export const createReasoner = (): LLMProvider => new MockReasoner();
+export const createInsightEngine = (): InsightEngine => new MockInsightEngine();

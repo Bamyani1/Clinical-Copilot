@@ -1,0 +1,131 @@
+{
+  "header": {
+    "brand": "Clinical Copilot",
+    "title": "Visit Summary",
+    "subtitle": "Concise overview of the completed encounter"
+  },
+  "tabs": {
+    "overview": "Overview",
+    "insights": "Insights"
+  },
+  "overview": {
+    "patientSnapshot": "Patient Snapshot",
+    "demographics": "Demographics",
+    "age": "Age",
+    "sex": "Sex",
+    "pregnant": "Pregnant",
+    "chiefComplaint": "Chief Complaint",
+    "duration": "Duration",
+    "notCaptured": "Not captured",
+    "notDocumented": "Not documented",
+    "durationValue": "{{count}} day",
+    "durationValue_plural": "{{count}} days",
+    "stats": {
+      "temp": "Temp",
+      "heartRate": "Heart Rate",
+      "bloodPressure": "Blood Pressure",
+      "spo2": "SpO₂"
+    },
+    "nextSteps": {
+      "title": "Next Steps",
+      "body": "Review suggested priorities, confirm clinical decisions, and finalize documentation before hand-off.",
+      "items": [
+        "Sanity-check ranked differentials and capture final decisions.",
+        "Confirm priority diagnostics and therapies with the care team.",
+        "Close out red flags or escalate before completing documentation."
+      ]
+    }
+  },
+  "summary": {
+    "downloadTitle": "Clinical Copilot Visit Summary",
+    "visitId": "Visit ID: {{id}}",
+    "sections": {
+      "demographics": "Demographics:",
+      "chiefComplaint": "Chief Complaint:",
+      "keyFindings": "Key Findings:",
+      "differentials": "Suggested Differentials:",
+      "workup": "Suggested Workup:",
+      "medications": "Suggested Medications:",
+      "redFlags": "Active Red Flags:",
+      "soapNote": "SOAP Note:"
+    },
+    "fields": {
+      "age": " - Age: {{value}}",
+      "sex": " - Sex: {{value}}",
+      "pregnant": " - Pregnant: {{value}}",
+      "chief": " - {{value}}",
+      "duration": " - Duration: {{value}}",
+      "allergies": " - Allergies: {{value}}",
+      "exam": " - Exam: {{value}}",
+      "labs": " - Labs: {{value}}"
+    },
+    "none": " None",
+    "defaultValues": {
+      "visitId": "demo",
+      "age": "—",
+      "sex": "—",
+      "pregnancy": "Not documented",
+      "chiefComplaint": "Not captured",
+      "duration": "Not documented",
+      "allergies": "None recorded",
+      "exam": "Not documented",
+      "labs": "Not documented"
+    },
+    "soap": {
+      "subjective": "Subjective:",
+      "objective": "Objective:",
+      "assessment": "Assessment:",
+      "plan": "Plan:",
+      "placeholder": "—"
+    },
+    "redFlagBullet": " - {{description}}",
+    "workupItem": " {{index}}. {{test}} — {{priority}}",
+    "medicationItem": " {{index}}. {{drug}}",
+    "differentialItem": " {{index}}. {{diagnosis}} ({{confidence}}%)"
+  },
+  "insights": {
+    "differential": {
+      "label": "Differential Outlook",
+      "title": "Diagnostic Confidence",
+      "confidence": "Confidence",
+      "count": "{{count}} diagnosis",
+      "count_plural": "{{count}} diagnoses",
+      "empty": "No differentials available."
+    },
+    "workup": {
+      "label": "Recommended Workup",
+      "title": "Diagnostic Testing",
+      "count": "{{count}} test",
+      "count_plural": "{{count}} tests",
+      "empty": "No tests suggested.",
+      "priorities": {
+        "urgent": "Urgent",
+        "routine": "Routine"
+      }
+    },
+    "medications": {
+      "label": "Medication Considerations",
+      "title": "Therapeutic Options",
+      "count": "{{count}} option",
+      "count_plural": "{{count}} options",
+      "empty": "No medications suggested.",
+      "requiresConfirmation": "Requires clinician confirmation before dispensing"
+    }
+  },
+  "stats": {
+    "placeholder": "—",
+    "unit": {
+      "temp": "°F",
+      "heartRate": "bpm",
+      "spo2": "%"
+    },
+    "pregnancy": {
+      "yes": "Yes",
+      "no": "No",
+      "unknown": "Not documented"
+    }
+  },
+  "export": {
+    "filename": "clinical-copilot-visit-{{id}}.txt"
+  }
+}

@@ -10,9 +10,10 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useVisitStore } from "@/lib/store";
 import type { CaseData, TranscriptEntry } from "@/lib/types";
-import { createReasoner, FixtureLoadError, type ScenarioFixtureFallback } from "@/lib/services/mock-reasoner";
+import { createInsightEngine, FixtureLoadError, type ScenarioFixtureFallback } from "@/lib/services/mock-insight-engine";
 import { cn } from "@/lib/utils";
 import type { CaseFixture } from "@/fixtures/types";
+import { useTranslation } from "react-i18next";
 
 const parseOptionalNumber = (value: string): number | undefined => {
   const trimmed = value.trim();
@@ -31,9 +32,10 @@ type CaseListKey = {
 }[keyof CaseData];
 
 export function CaseEditor() {
-  const { caseData, updateCaseData, transcript } = useVisitStore();
+  const { caseData, updateCaseData, transcript, setScenario } = useVisitStore();
+  const { t } = useTranslation("visit");
   const [isExtracting, setIsExtracting] = useState(false);
-  const [reasoner] = useState(() => createReasoner());
+  const [insightEngine] = useState(() => createInsightEngine());
   const lastExtractionCountRef = useRef(0);
   const [fixtureStatus, setFixtureStatus] = useState<{ tone: "warning" | "error"; message: string } | null>(null);
 
@@ -51,7 +53,7 @@ export function CaseEditor() {
       try {
         const transcriptText = entries.map((entry) => `${entry.speaker}: ${entry.text}`).join("\n");
         const { caseData: currentCase, scenarioId: activeScenario } = useVisitStore.getState();
-        const response = await reasoner.extractCase({
+        const response = await insightEngine.extractCase({
           transcript: transcriptText,
           existingCase: currentCase,
           scenarioId: activeScenario,
@@ -65,15 +67,19 @@ export function CaseEditor() {
         if (error instanceof FixtureLoadError) {
           if (error.fallback) {
             const fallback = error.fallback as ScenarioFixtureFallback<CaseFixture>;
+            const currentScenario = useVisitStore.getState().scenarioId;
+            if (currentScenario !== fallback.scenarioId) {
+              setScenario(fallback.scenarioId);
+            }
             updateCaseData(fallback.fixture.caseData);
             setFixtureStatus({
               tone: "warning",
-              message: `Primary case fixture "${error.identifier}" is unavailable. Showing fallback scenario "${fallback.scenarioId}".`,
+              message: t("caseEditor.status.fallback", { id: error.identifier, fallbackId: fallback.scenarioId }),
             });
           } else {
             setFixtureStatus({
               tone: "error",
-              message: "Unable to load clinical fixtures. Please refresh or notify the team before continuing.",
+              message: t("caseEditor.status.missing"),
             });
           }
           lastExtractionCountRef.current = entries.length;
@@ -81,14 +87,14 @@ export function CaseEditor() {
         }
         setFixtureStatus({
           tone: "error",
-          message: "An unexpected error occurred while extracting case data. Manual entry is still available.",
+          message: t("caseEditor.status.unexpected"),
         });
         lastExtractionCountRef.current = entries.length;
       } finally {
         setIsExtracting(false);
       }
     },
-    [reasoner, updateCaseData],
+    [insightEngine, updateCaseData, setScenario, t],
   );
 
   useEffect(() => {
@@ -155,15 +161,15 @@ export function CaseEditor() {
   );
 
   return (
-    <Card className="h-full flex flex-col">
+    <Card className="flex h-full min-h-0 flex-col">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg font-semibold">
           <User className="h-5 w-5" />
-          Clinical Case Data
+          {t("caseEditor.title")}
           {isExtracting && <Loader2 className="h-4 w-4 animate-spin" />}
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 overflow-y-auto space-y-6">
+      <CardContent className="flex-1 min-h-0 space-y-6 overflow-y-auto">
         {fixtureStatus && (
           <Alert
             variant={fixtureStatus.tone === "error" ? "destructive" : "default"}
@@ -177,33 +183,33 @@ export function CaseEditor() {
         <div className="space-y-3">
           <h3 className="font-semibold text-sm flex items-center gap-2">
             <User className="h-4 w-4" />
-            Demographics
+            {t("caseEditor.sections.demographics")}
           </h3>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="age" className="text-xs">Age</Label>
+              <Label htmlFor="age" className="text-xs">{t("caseEditor.fields.age.label")}</Label>
               <Input
                 id="age"
                 type="number"
-                placeholder="Years"
+                placeholder={t("caseEditor.fields.age.placeholder")}
                 value={caseData.demographics?.age ?? ""}
                 onChange={(e) => handleDemographicsChange("age", parseOptionalNumber(e.target.value))}
                 className="h-8 text-sm"
               />
             </div>
             <div>
-              <Label htmlFor="sex" className="text-xs">Sex</Label>
+              <Label htmlFor="sex" className="text-xs">{t("caseEditor.fields.sex.label")}</Label>
               <Select
                 value={caseData.demographics?.sex ?? undefined}
                 onValueChange={(value) => handleDemographicsChange("sex", value as Demographics["sex"])}
               >
                 <SelectTrigger id="sex" className="h-8 text-sm">
-                  <SelectValue placeholder="Select" />
+                  <SelectValue placeholder={t("caseEditor.fields.sex.placeholder")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="M">Male</SelectItem>
-                  <SelectItem value="F">Female</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
+                  <SelectItem value="M">{t("caseEditor.fields.sex.options.male")}</SelectItem>
+                  <SelectItem value="F">{t("caseEditor.fields.sex.options.female")}</SelectItem>
+                  <SelectItem value="Other">{t("caseEditor.fields.sex.options.other")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -217,48 +223,48 @@ export function CaseEditor() {
         <div className="space-y-3">
           <h3 className="font-semibold text-sm flex items-center gap-2">
             <Heart className="h-4 w-4" />
-            Vital Signs
+            {t("caseEditor.sections.vitals")}
           </h3>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="temp" className="text-xs">Temperature (°F)</Label>
+              <Label htmlFor="temp" className="text-xs">{t("caseEditor.fields.temperature.label")}</Label>
               <Input
                 id="temp"
                 type="number"
                 step="0.1"
-                placeholder="98.6"
+                placeholder={t("caseEditor.fields.temperature.placeholder")}
                 value={caseData.vitals?.temp ?? ""}
                 onChange={(e) => handleVitalsChange("temp", parseOptionalNumber(e.target.value))}
                 className="h-8 text-sm"
               />
             </div>
             <div>
-              <Label htmlFor="hr" className="text-xs">Heart Rate</Label>
+              <Label htmlFor="hr" className="text-xs">{t("caseEditor.fields.heartRate.label")}</Label>
               <Input
                 id="hr"
                 type="number"
-                placeholder="BPM"
+                placeholder={t("caseEditor.fields.heartRate.placeholder")}
                 value={caseData.vitals?.hr ?? ""}
                 onChange={(e) => handleVitalsChange("hr", parseOptionalNumber(e.target.value))}
                 className="h-8 text-sm"
               />
             </div>
             <div>
-              <Label htmlFor="bp" className="text-xs">Blood Pressure</Label>
+              <Label htmlFor="bp" className="text-xs">{t("caseEditor.fields.bloodPressure.label")}</Label>
               <Input
                 id="bp"
-                placeholder="120/80"
+                placeholder={t("caseEditor.fields.bloodPressure.placeholder")}
                 value={caseData.vitals?.bp ?? ""}
                 onChange={(e) => handleVitalsChange("bp", e.target.value as Vitals["bp"])}
                 className="h-8 text-sm"
               />
             </div>
             <div>
-              <Label htmlFor="spo2" className="text-xs">SpO2 (%)</Label>
+              <Label htmlFor="spo2" className="text-xs">{t("caseEditor.fields.spo2.label")}</Label>
               <Input
                 id="spo2"
                 type="number"
-                placeholder="98"
+                placeholder={t("caseEditor.fields.spo2.placeholder")}
                 value={caseData.vitals?.spo2 ?? ""}
                 onChange={(e) => handleVitalsChange("spo2", parseOptionalNumber(e.target.value))}
                 className="h-8 text-sm"
@@ -273,24 +279,24 @@ export function CaseEditor() {
         <div className="space-y-3">
           <h3 className="font-semibold text-sm flex items-center gap-2">
             <AlertCircle className="h-4 w-4" />
-            History of Present Illness
+            {t("caseEditor.sections.hpi")}
           </h3>
           <div>
-            <Label htmlFor="cc" className="text-xs">Chief Complaint</Label>
-          <Input
-            id="cc"
-            placeholder="Primary concern"
-            value={caseData.hpi?.chiefComplaint ?? ""}
-            onChange={(e) => handleHPIChange("chiefComplaint", e.target.value)}
-            className="h-8 text-sm"
-          />
+            <Label htmlFor="cc" className="text-xs">{t("caseEditor.fields.chiefComplaint.label")}</Label>
+            <Input
+              id="cc"
+              placeholder={t("caseEditor.fields.chiefComplaint.placeholder")}
+              value={caseData.hpi?.chiefComplaint ?? ""}
+              onChange={(e) => handleHPIChange("chiefComplaint", e.target.value)}
+              className="h-8 text-sm"
+            />
           </div>
           <div>
-            <Label htmlFor="onset" className="text-xs">Onset (days)</Label>
+            <Label htmlFor="onset" className="text-xs">{t("caseEditor.fields.onset.label")}</Label>
             <Input
               id="onset"
               type="number"
-              placeholder="Days"
+              placeholder={t("caseEditor.fields.onset.placeholder")}
               value={caseData.hpi?.onsetDays ?? ""}
               onChange={(e) => handleHPIChange("onsetDays", parseOptionalNumber(e.target.value) as HistoryOfPresentIllness["onsetDays"])}
               className="h-8 text-sm"
@@ -304,7 +310,7 @@ export function CaseEditor() {
         <div className="space-y-3">
           <h3 className="font-semibold text-sm flex items-center gap-2">
             <Pill className="h-4 w-4" />
-            Allergies
+            {t("caseEditor.sections.allergies")}
           </h3>
           <div className="flex flex-wrap gap-1">
             {(caseData.allergies ?? []).map((allergy) => (
@@ -316,7 +322,7 @@ export function CaseEditor() {
                   removalPillClass,
                   "border-transparent bg-secondary text-secondary-foreground hover:bg-destructive hover:text-destructive-foreground",
                 )}
-                aria-label={`Remove allergy ${allergy}`}
+                aria-label={t("caseEditor.fields.removeAllergy", { value: allergy })}
               >
                 <span>{allergy}</span>
                 <span aria-hidden>✕</span>
@@ -324,7 +330,7 @@ export function CaseEditor() {
             ))}
           </div>
           <Input
-            placeholder="Add allergy (press Enter)"
+            placeholder={t("caseEditor.fields.addAllergy")}
             className="h-8 text-sm"
             onKeyDown={(e) => {
               if (e.key === "Enter") {
@@ -341,7 +347,7 @@ export function CaseEditor() {
 
         {/* Current Medications */}
         <div className="space-y-3">
-          <h3 className="font-semibold text-sm">Current Medications</h3>
+          <h3 className="font-semibold text-sm">{t("caseEditor.sections.medications")}</h3>
           <div className="flex flex-wrap gap-1">
             {(caseData.medications ?? []).map((medication) => (
               <button
@@ -352,7 +358,7 @@ export function CaseEditor() {
                   removalPillClass,
                   "border-border/60 bg-background/80 text-foreground/80 hover:bg-destructive hover:text-destructive-foreground",
                 )}
-                aria-label={`Remove medication ${medication}`}
+                aria-label={t("caseEditor.fields.removeMedication", { value: medication })}
               >
                 <span>{medication}</span>
                 <span aria-hidden>✕</span>
@@ -360,7 +366,7 @@ export function CaseEditor() {
             ))}
           </div>
           <Input
-            placeholder="Add medication (press Enter)"
+            placeholder={t("caseEditor.fields.addMedication")}
             className="h-8 text-sm"
             onKeyDown={(e) => {
               if (e.key === "Enter") {
@@ -373,26 +379,6 @@ export function CaseEditor() {
           />
         </div>
 
-        {/* Quick Extract Button */}
-        <Button
-          onClick={() => void extractCaseFromTranscript(transcript)}
-          disabled={isExtracting || transcript.length === 0}
-          variant="outline"
-          size="sm"
-          className="w-full"
-        >
-          {isExtracting ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Extracting case data...
-            </>
-          ) : (
-            <>
-              <Save className="h-4 w-4 mr-2" />
-              Extract from transcript
-            </>
-          )}
-        </Button>
       </CardContent>
     </Card>
   );

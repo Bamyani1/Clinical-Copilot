@@ -10,16 +10,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { useTranslation } from "react-i18next";
+
 type Props = {
   children: React.ReactNode;
 };
 
 const navItems = [
-  { to: "/", label: "Overview" },
-  { to: "/about", label: "About" },
+  { to: "/", labelKey: "nav.overview" },
+  { to: "/about", labelKey: "nav.about" },
 ];
 
 export function AppShell({ children }: Props) {
+  const { t } = useTranslation("common");
   const [isOnline, setIsOnline] = useState<boolean>(typeof navigator !== "undefined" ? navigator.onLine : true);
   const location = useLocation();
 
@@ -41,7 +44,7 @@ export function AppShell({ children }: Props) {
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:top-6 focus:left-6 focus:z-50 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-lg transition"
       >
-        Skip to content
+        {t("labels.skipToContent")}
       </a>
 
       {!isOnline && (
@@ -50,7 +53,7 @@ export function AppShell({ children }: Props) {
           aria-live="polite"
           className="z-40 w-full bg-accent/90 py-2 text-center text-xs font-semibold text-accent-foreground shadow-md shadow-accent/40"
         >
-          <WifiOff className="mr-1 inline h-4 w-4" /> You are offline. Some features may be unavailable.
+          <WifiOff className="mr-1 inline h-4 w-4" /> {t("status.offline")}
         </div>
       )}
 
@@ -61,8 +64,8 @@ export function AppShell({ children }: Props) {
               <Stethoscope className="h-5 w-5" strokeWidth={1.3} />
             </span>
             <div className="leading-tight">
-              <p className="text-[11px] uppercase tracking-[0.32em] text-subtle">Clinical Copilot</p>
-              <p className="text-lg font-semibold text-foreground">Clinical Copilot Lab</p>
+              <p className="text-[11px] uppercase tracking-[0.32em] text-subtle">{t("app.tagline")}</p>
+              <p className="text-lg font-semibold text-foreground">{t("app.name")}</p>
             </div>
           </Link>
 
@@ -75,7 +78,7 @@ export function AppShell({ children }: Props) {
                   className="h-10 w-10 rounded-full border border-border/60 bg-background/40 text-muted-foreground transition hover:border-primary-muted/60 hover:text-foreground"
                 >
                   <Menu className="h-4 w-4" />
-                  <span className="sr-only">Open navigation menu</span>
+                  <span className="sr-only">{t("labels.openNavigation")}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -93,7 +96,7 @@ export function AppShell({ children }: Props) {
                       aria-current={location.pathname === item.to ? "page" : undefined}
                       className="flex items-center justify-between"
                     >
-                      <span>{item.label}</span>
+                      <span>{t(item.labelKey)}</span>
                       {location.pathname === item.to && (
                         <span className="h-2 w-2 rounded-full bg-primary" aria-hidden />
                       )}
@@ -106,7 +109,7 @@ export function AppShell({ children }: Props) {
                   className="cursor-pointer rounded-[calc(var(--radius)-4px)] px-3 py-2 text-sm font-semibold uppercase tracking-[0.18em] text-primary transition hover:bg-primary/15 hover:text-primary"
                 >
                   <Link to="/consent">
-                    Launch Visit
+                    {t("app.launch")}
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -122,20 +125,12 @@ export function AppShell({ children }: Props) {
       <footer className="relative z-30 px-6 pb-12">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <div className="text-muted-foreground/70">
-            © {new Date().getFullYear()} Clinical Copilot — Experimental sandbox for clinician-led AI.
+            © {new Date().getFullYear()} {t("footer.legal")}
           </div>
           <div className="flex flex-wrap items-center gap-4 text-muted-foreground">
             <Link to="/about" className="transition hover:text-foreground">
-              About
+              {t("nav.about")}
             </Link>
-            <a
-              href="https://github.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="transition hover:text-foreground"
-            >
-              Source
-            </a>
           </div>
         </div>
       </footer>

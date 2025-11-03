@@ -1,0 +1,10 @@
+{
+  "hero": {
+    "eyebrow": "Clinical Copilot",
+    "title": "Structured decision support and documentation rehearsal for primary care.",
+    "description": "Clinical Copilot guides clinicians through scripted encounters, surfacing likely differentials, suggested workups, and documentation cues from a curated library while keeping every step deterministic and reviewable."
+  },
+  "disclaimer": {
+    "text": "Demo only—do not use this prototype for patient care, diagnosis, or treatment decisions. Data remains local and all outputs are simulated."
+  }
+}

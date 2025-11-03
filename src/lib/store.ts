@@ -26,7 +26,7 @@ interface VisitState {
   // Clinical data
   caseData: CaseData;
   
-  // AI suggestions
+  // Decision support suggestions
   differentials: Differential[];
   workupSuggestions: WorkupSuggestion[];
   medicationSuggestions: MedicationSuggestion[];
@@ -39,6 +39,7 @@ interface VisitState {
   // Actions
   setVisitId: (id: string) => void;
   setConsented: (consented: boolean) => void;
+  setLocale: (locale: string) => void;
   setRecording: (recording: boolean) => void;
   addTranscriptEntry: (entry: Omit<TranscriptEntry, 'id'>) => void;
   setScenario: (scenarioId: ScenarioId) => void;
@@ -56,6 +57,7 @@ type VisitStateData = Omit<
   VisitState,
   | 'setVisitId'
   | 'setConsented'
+  | 'setLocale'
   | 'setRecording'
   | 'addTranscriptEntry'
   | 'setScenario'
@@ -94,6 +96,8 @@ export const useVisitStore = create<VisitState>()(
         setVisitId: (id: string) => set({ visitId: id }),
         
         setConsented: (consented: boolean) => set({ consented }),
+
+        setLocale: (locale) => set({ locale }),
         
         setRecording: (recording: boolean) => set({ isRecording: recording }),
         
@@ -197,14 +201,16 @@ export const useVisitStore = create<VisitState>()(
 );
 
 // Settings store for app configuration
+type ProviderName = 'mock';
+
 interface SettingsState {
   localOnlyMode: boolean;
-  sttProvider: 'mock';
-  llmProvider: 'mock';
+  sttProvider: ProviderName;
+  insightProvider: ProviderName;
   
   setLocalOnlyMode: (enabled: boolean) => void;
-  setSttProvider: () => void;
-  setLlmProvider: () => void;
+  setSttProvider: (provider: ProviderName) => void;
+  setInsightProvider: (provider: ProviderName) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -213,11 +219,11 @@ export const useSettingsStore = create<SettingsState>()(
       (set) => ({
         localOnlyMode: true,
         sttProvider: 'mock',
-        llmProvider: 'mock',
+        insightProvider: 'mock',
         
         setLocalOnlyMode: (enabled) => set({ localOnlyMode: enabled }),
-        setSttProvider: () => set({ sttProvider: 'mock' }),
-        setLlmProvider: () => set({ llmProvider: 'mock' }),
+        setSttProvider: (provider) => set({ sttProvider: provider }),
+        setInsightProvider: (provider) => set({ insightProvider: provider }),
       }),
       { name: 'settings-store' }
     ),

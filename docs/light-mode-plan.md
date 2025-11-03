@@ -28,7 +28,7 @@ The design tokens already define both light (`:root`) and dark (`.dark`) palette
 4. **Ensure CSS reflects the toggle**
    - Confirm Tailwind’s `darkMode: "class"` setting (already present in `tailwind.config.ts`) so the new `dark` class is recognized.
    - Audit any components that currently assume dark tokens. Because both palettes use the same token names, the new theme should cascade automatically. If a component forces dark-specific styles (e.g., opacity or hard-coded hex values like `#1fd1d0`), evaluate whether they should remain constant or adapt via tokens.
-   - For `AmbientScene` glow (`#1fd1d0`) and legacy Vite styles, keep as-is unless a future design update introduces tokenized alternatives.
+   - For legacy Vite styles, keep as-is unless a future design update introduces tokenized alternatives.
 
 5. **Testing**
    - Manual: cycle the toggle on every major route and confirm gradients, borders, and typography reflect light tokens.

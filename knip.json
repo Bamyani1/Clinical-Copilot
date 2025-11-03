@@ -7,6 +7,5 @@
     "docs/**",
     "stats/**",
     "vite-profile-*.cpuprofile"
-  ],
-  "ignoreDependencies": ["postprocessing"]
+  ]
 }

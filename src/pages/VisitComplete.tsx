@@ -1,15 +1,16 @@
 import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, ClipboardList, FileText, Microscope, TestTube, Pill } from "lucide-react";
+import { CheckCircle2, ClipboardList, Microscope, TestTube, Pill, FileDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useVisitStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { buildVisitSummaryDocument, buildVisitSummaryFilename } from "@/lib/exporters/visitSummary";
 
 export default function VisitComplete() {
   const navigate = useNavigate();
@@ -22,8 +23,10 @@ export default function VisitComplete() {
     workupSuggestions,
     medicationSuggestions,
     redFlags,
+    soapNote,
     resetVisit,
   } = useVisitStore();
+  const { t, i18n } = useTranslation(["visitComplete", "common"]);
 
   useEffect(() => {
     if (!visitId || !consented) {
@@ -42,7 +45,19 @@ export default function VisitComplete() {
     };
   }, [transcript]);
 
-  const activeRedFlags = redFlags.filter((flag) => flag.active);
+  const placeholder = t("stats.placeholder");
+  const nextStepItems = useMemo(() => t("overview.nextSteps.items", { returnObjects: true }) as string[], [t]);
+  const formatStatValue = (value?: number, unit?: string) => {
+    if (value === undefined || value === null || Number.isNaN(value)) {
+      return placeholder;
+    }
+    return `${value}${unit ?? ""}`;
+  };
+
+  const formatDuration = (days?: number | null) => {
+    if (days == null) return placeholder;
+    return t("overview.durationValue", { count: days });
+  };
 
   const handleStartNewVisit = () => {
     resetVisit();
@@ -54,6 +69,30 @@ export default function VisitComplete() {
     navigate("/");
   };
 
+  const handleExportSummary = () => {
+    const fixedT = i18n.getFixedT(i18n.language, "visitComplete");
+    const content = buildVisitSummaryDocument({
+      t: fixedT,
+      visitId,
+      caseData,
+      differentials,
+      workupSuggestions,
+      medicationSuggestions,
+      redFlags,
+      soapNote,
+    });
+
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = buildVisitSummaryFilename(fixedT, visitId);
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+  };
+
   const confidenceTone = (confidence: number) => {
     if (confidence >= 0.75) return "border-confidence-high/50 text-confidence-high";
     if (confidence >= 0.45) return "border-confidence-medium/50 text-confidence-medium";
@@ -61,9 +100,7 @@ export default function VisitComplete() {
   };
 
   const priorityTone = (priority: "urgent" | "routine") => {
-    return priority === "urgent"
-      ? "border-red-flag/60 text-red-flag"
-      : "border-border/50 text-muted-foreground";
+    return priority === "urgent" ? "border-red-flag/60 text-red-flag" : "border-border/50 text-muted-foreground";
   };
 
   return (
@@ -75,27 +112,24 @@ export default function VisitComplete() {
               <CheckCircle2 className="h-6 w-6" />
             </span>
             <div className="leading-tight">
-              <p className="text-[11px] uppercase tracking-[0.3em] text-subtle">Clinical Copilot</p>
-              <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">Visit Summary</h1>
-              <p className="text-sm text-muted-foreground">Concise overview of the completed encounter</p>
+              <p className="text-[11px] uppercase tracking-[0.3em] text-subtle">{t("header.brand")}</p>
+              <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">{t("header.title")}</h1>
+              <p className="text-sm text-muted-foreground">{t("header.subtitle")}</p>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <Badge variant="secondary" className="text-xs uppercase tracking-[0.3em]">
-              Visit ID: {visitId ?? "—"}
-            </Badge>
-            <Badge className="bg-primary-soft/40 text-primary-foreground">Transcript entries: {transcript.length}</Badge>
-          </div>
+          <Badge variant="secondary" className="text-xs uppercase tracking-[0.3em]">
+            {t("common:labels.visitId")}: {visitId ?? placeholder}
+          </Badge>
         </div>
       </section>
 
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="flex w-full flex-wrap gap-2">
           <TabsTrigger value="overview" className="flex-1">
-            Overview
+            {t("tabs.overview")}
           </TabsTrigger>
           <TabsTrigger value="insights" className="flex-1">
-            AI Insights
+            {t("tabs.insights")}
           </TabsTrigger>
         </TabsList>
 
@@ -107,40 +141,40 @@ export default function VisitComplete() {
                   <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
                     <ClipboardList className="h-4 w-4 text-white" />
                   </div>
-                  Patient Snapshot
+                  {t("overview.patientSnapshot")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-5 text-sm text-muted-foreground">
                 <div className="space-y-2">
-                  <p className="text-xs uppercase tracking-[0.3em] text-subtle">Demographics</p>
+                  <p className="text-xs uppercase tracking-[0.3em] text-subtle">{t("overview.demographics")}</p>
                   <div className="flex flex-wrap gap-2 text-foreground">
                     <Badge variant="outline" className="border-border/40">
-                      Age: {caseData.demographics?.age ?? "—"}
+                      {t("overview.age")}: {caseData.demographics?.age ?? placeholder}
                     </Badge>
                     <Badge variant="outline" className="border-border/40 capitalize">
-                      Sex: {caseData.demographics?.sex ?? "—"}
+                      {t("overview.sex")}: {caseData.demographics?.sex ?? placeholder}
                     </Badge>
                     {caseData.demographics?.pregnant && (
-                      <Badge className="bg-warning/20 text-warning-foreground">Pregnant</Badge>
+                      <Badge className="bg-warning/20 text-warning-foreground">{t("overview.pregnant")}</Badge>
                     )}
                   </div>
                 </div>
                 <Separator />
                 <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-subtle">Chief Complaint</p>
+                  <p className="text-xs uppercase tracking-[0.3em] text-subtle">{t("overview.chiefComplaint")}</p>
                   <p className="mt-1 text-sm font-semibold text-foreground">
-                    {caseData.hpi?.chiefComplaint || "Not captured"}
+                    {caseData.hpi?.chiefComplaint || t("overview.notCaptured")}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Duration: {caseData.hpi?.onsetDays ? `${caseData.hpi.onsetDays} day(s)` : "—"}
+                    {t("overview.duration")}: {formatDuration(caseData.hpi?.onsetDays ?? null)}
                   </p>
                 </div>
                 <Separator />
                 <div className="grid grid-cols-2 gap-3 text-foreground">
-                  <StatPill label="Temp" value={formatValue(caseData.vitals?.temp, "°F")} />
-                  <StatPill label="Heart Rate" value={formatValue(caseData.vitals?.hr, "bpm")} />
-                  <StatPill label="Blood Pressure" value={caseData.vitals?.bp || "—"} />
-                  <StatPill label="SpO₂" value={formatValue(caseData.vitals?.spo2, "%")} />
+                  <StatPill label={t("overview.stats.temp")} value={formatStatValue(caseData.vitals?.temp, t("stats.unit.temp"))} />
+                  <StatPill label={t("overview.stats.heartRate")} value={formatStatValue(caseData.vitals?.hr, t("stats.unit.heartRate"))} />
+                  <StatPill label={t("overview.stats.bloodPressure")} value={caseData.vitals?.bp ?? placeholder} />
+                  <StatPill label={t("overview.stats.spo2")} value={formatStatValue(caseData.vitals?.spo2, t("stats.unit.spo2"))} />
                 </div>
               </CardContent>
             </Card>
@@ -151,36 +185,46 @@ export default function VisitComplete() {
                   <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
                     <ClipboardList className="h-4 w-4 text-white" />
                   </div>
-                  Next Steps
+                  {t("overview.nextSteps.title")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 text-sm text-muted-foreground">
-                <p className="text-sm text-foreground">
-                  Review AI recommendations, confirm clinical decisions, and finalize documentation before hand-off.
-                </p>
+                <p className="text-sm text-foreground">{t("overview.nextSteps.body")}</p>
                 <ul className="space-y-2 pl-4 text-sm leading-relaxed text-muted-foreground">
-                  <li className="list-disc">Validate differential diagnoses with clinical judgment.</li>
-                  <li className="list-disc">Order highlighted investigations when clinically appropriate.</li>
-                  <li className="list-disc">Communicate patient-ready guidance for therapy considerations.</li>
-                  <li className="list-disc">Resolve outstanding red flags or escalate care.</li>
+                  {nextStepItems.map((item) => (
+                    <li key={item} className="list-disc">
+                      {item}
+                    </li>
+                  ))}
                 </ul>
-                <Separator />
-                <div className="flex flex-wrap gap-3">
-                  <Button className="bg-gradient-primary text-primary-foreground hover:opacity-90" onClick={handleStartNewVisit}>
-                    Start New Visit
-                  </Button>
-                  <Button variant="outline" onClick={handleReturnHome}>
-                    Return Home
-                  </Button>
-                </div>
               </CardContent>
             </Card>
+          </div>
+          <div className="mt-14 flex flex-wrap items-center gap-2">
+            <Button
+              className="inline-flex items-center rounded-full border border-primary-muted/40 bg-gradient-primary/75 px-5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-foreground shadow-md shadow-primary/25 transition hover:bg-gradient-primary"
+              onClick={handleStartNewVisit}
+            >
+              {t("common:actions.startNewVisit")}
+            </Button>
+            <Button
+              className="inline-flex items-center rounded-full border border-primary-muted/40 bg-gradient-primary/75 px-5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-foreground shadow-md shadow-primary/25 transition hover:bg-gradient-primary"
+              onClick={handleReturnHome}
+            >
+              {t("common:actions.returnHome")}
+            </Button>
+            <Button
+              className="inline-flex items-center gap-2 rounded-full border border-primary-muted/40 bg-gradient-primary/75 px-5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-foreground shadow-md shadow-primary/25 transition hover:bg-gradient-primary"
+              onClick={handleExportSummary}
+            >
+              <FileDown className="h-3 w-3" />
+              {t("common:actions.exportSummary")}
+            </Button>
           </div>
         </TabsContent>
 
         <TabsContent value="insights" className="mt-6">
           <div className="space-y-8">
-            {/* Differential Outlook Section */}
             <section className="group/section relative overflow-hidden rounded-[var(--radius-lg)] border border-primary-muted/40 bg-gradient-to-br from-surface/75 via-background/60 to-background/40 transition-all duration-500 hover:border-primary-muted/60">
               <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-700 group-hover/section:opacity-100">
                 <div className="absolute -right-32 -top-32 h-64 w-64 rounded-full bg-primary/10 blur-3xl" aria-hidden />
@@ -194,21 +238,16 @@ export default function VisitComplete() {
                     </div>
                     <div>
                       <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-muted-foreground/75">
-                        Differential Outlook
+                        {t("insights.differential.label")}
                       </p>
-                      <h3 className="text-lg font-semibold text-foreground">Diagnostic Possibilities</h3>
+                      <h3 className="text-lg font-semibold text-foreground">{t("insights.differential.title")}</h3>
                     </div>
                   </div>
-                  {differentials.length > 0 && (
-                    <Badge variant="secondary" className="text-[11px] font-medium">
-                      {differentials.length} {differentials.length === 1 ? 'diagnosis' : 'diagnoses'}
-                    </Badge>
-                  )}
                 </div>
 
                 {differentials.length === 0 ? (
                   <div className="rounded-lg border border-border/40 bg-background/60 px-4 py-8 text-center">
-                    <p className="text-sm text-muted-foreground">No differential diagnoses generated.</p>
+                    <p className="text-sm text-muted-foreground">{t("insights.differential.empty")}</p>
                   </div>
                 ) : (
                   <div className="grid gap-3 lg:grid-cols-2">
@@ -242,8 +281,6 @@ export default function VisitComplete() {
                             </Badge>
                           </div>
                           <p className="text-[13px] leading-relaxed text-muted-foreground">{diff.rationale}</p>
-                          
-                          {/* Confidence meter */}
                           <div className="mt-3 overflow-hidden rounded-full bg-border/30">
                             <div
                               className={cn(
@@ -263,7 +300,6 @@ export default function VisitComplete() {
               </div>
             </section>
 
-            {/* Recommended Workup Section */}
             <section className="group/section relative overflow-hidden rounded-[var(--radius-lg)] border border-primary-muted/40 bg-gradient-to-br from-surface/75 via-background/60 to-background/40 transition-all duration-500 hover:border-primary-muted/60">
               <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-700 group-hover/section:opacity-100">
                 <div className="absolute -left-32 top-1/2 h-64 w-64 -translate-y-1/2 rounded-full bg-secondary/10 blur-3xl" aria-hidden />
@@ -277,21 +313,21 @@ export default function VisitComplete() {
                     </div>
                     <div>
                       <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-muted-foreground/75">
-                        Recommended Workup
+                        {t("insights.workup.label")}
                       </p>
-                      <h3 className="text-lg font-semibold text-foreground">Diagnostic Testing</h3>
+                      <h3 className="text-lg font-semibold text-foreground">{t("insights.workup.title")}</h3>
                     </div>
                   </div>
                   {workupSuggestions.length > 0 && (
                     <Badge variant="secondary" className="text-[11px] font-medium">
-                      {workupSuggestions.length} {workupSuggestions.length === 1 ? 'test' : 'tests'}
+                      {t("insights.workup.count", { count: workupSuggestions.length })}
                     </Badge>
                   )}
                 </div>
 
                 {workupSuggestions.length === 0 ? (
                   <div className="rounded-lg border border-border/40 bg-background/60 px-4 py-8 text-center">
-                    <p className="text-sm text-muted-foreground">No tests suggested.</p>
+                    <p className="text-sm text-muted-foreground">{t("insights.workup.empty")}</p>
                   </div>
                 ) : (
                   <div className="grid gap-3 lg:grid-cols-2">
@@ -327,7 +363,7 @@ export default function VisitComplete() {
                                 priorityTone(workup.priority),
                               )}
                             >
-                              {workup.priority}
+                              {t(`insights.workup.priorities.${workup.priority}`)}
                             </Badge>
                           </div>
                           <p className="text-[13px] leading-relaxed text-muted-foreground">{workup.indication}</p>
@@ -339,7 +375,6 @@ export default function VisitComplete() {
               </div>
             </section>
 
-            {/* Medication Considerations Section */}
             <section className="group/section relative overflow-hidden rounded-[var(--radius-lg)] border border-primary-muted/40 bg-gradient-to-br from-surface/75 via-background/60 to-background/40 transition-all duration-500 hover:border-primary-muted/60">
               <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-700 group-hover/section:opacity-100">
                 <div className="absolute -bottom-32 right-16 h-64 w-64 rounded-full bg-primary/10 blur-3xl" aria-hidden />
@@ -353,21 +388,21 @@ export default function VisitComplete() {
                     </div>
                     <div>
                       <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-muted-foreground/75">
-                        Medication Considerations
+                        {t("insights.medications.label")}
                       </p>
-                      <h3 className="text-lg font-semibold text-foreground">Therapeutic Options</h3>
+                      <h3 className="text-lg font-semibold text-foreground">{t("insights.medications.title")}</h3>
                     </div>
                   </div>
                   {medicationSuggestions.length > 0 && (
                     <Badge variant="secondary" className="text-[11px] font-medium">
-                      {medicationSuggestions.length} {medicationSuggestions.length === 1 ? 'option' : 'options'}
+                      {t("insights.medications.count", { count: medicationSuggestions.length })}
                     </Badge>
                   )}
                 </div>
 
                 {medicationSuggestions.length === 0 ? (
                   <div className="rounded-lg border border-border/40 bg-background/60 px-4 py-8 text-center">
-                    <p className="text-sm text-muted-foreground">No medications suggested.</p>
+                    <p className="text-sm text-muted-foreground">{t("insights.medications.empty")}</p>
                   </div>
                 ) : (
                   <div className="grid gap-3 lg:grid-cols-2">
@@ -383,7 +418,7 @@ export default function VisitComplete() {
                             {med.drugClass}
                           </h4>
                           <p className="mb-3 text-[13px] leading-relaxed text-muted-foreground">{med.indication}</p>
-                          
+
                           {med.contraindications && med.contraindications.length > 0 && (
                             <div className="mb-2 flex flex-wrap gap-1.5">
                               {med.contraindications.map((item) => (
@@ -397,12 +432,12 @@ export default function VisitComplete() {
                               ))}
                             </div>
                           )}
-                          
+
                           {med.requiresConfirmation && (
                             <div className="mt-2 flex items-center gap-2 rounded-md border border-border/30 bg-background/40 px-2 py-1.5">
                               <div className="h-1.5 w-1.5 rounded-full bg-primary" />
                               <p className="text-[11px] text-muted-foreground">
-                                Requires clinician confirmation before dispensing
+                                {t("insights.medications.requiresConfirmation")}
                               </p>
                             </div>
                           )}
@@ -429,12 +464,7 @@ function StatPill({ label, value }: StatPillProps) {
   return (
     <div className="rounded-lg border border-border/40 bg-background/60 px-3 py-2 text-xs">
       <p className="mb-1 text-[10px] uppercase tracking-[0.3em] text-subtle">{label}</p>
-      <p className="text-sm font-semibold text-foreground">{value ?? "—"}</p>
+      <p className="text-sm font-semibold text-foreground">{value}</p>
     </div>
   );
-}
-
-function formatValue(value?: number, suffix?: string) {
-  if (value === undefined || value === null || Number.isNaN(value)) return "—";
-  return `${value}${suffix ?? ""}`;
 }

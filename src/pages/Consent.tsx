@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Shield, FileText } from "lucide-react";
+import { Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -8,17 +8,45 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useVisitStore } from "@/lib/store";
+import { useTranslation } from "react-i18next";
 
 export default function Consent() {
   const navigate = useNavigate();
-  const { setConsented, setVisitId, resetVisit } = useVisitStore();
-  
-  const [patientFirstName, setPatientFirstName] = useState("Jordan");
-  const [patientLastName, setPatientLastName] = useState("Smith");
+  const { setConsented, setVisitId, resetVisit, setScenario } = useVisitStore();
+  const { t } = useTranslation(["consent", "common"]);
+
+  const persona = useMemo(
+    () => ({
+      firstName: t("persona.firstName"),
+      lastName: t("persona.lastName"),
+      summary: t("persona.summary"),
+      scenarioId: "uti-dysuria" as const,
+    }),
+    [t],
+  );
+
+  const includedItems = useMemo(
+    () => t("cards.included.items", { returnObjects: true }) as string[],
+    [t],
+  );
+
+  const fullTermsItems = useMemo(
+    () => t("cards.included.fullTerms.items", { returnObjects: true }) as string[],
+    [t],
+  );
+
+  const sharedConsentItems = useMemo(
+    () => t("cards.sharedConsent.items", { returnObjects: true }) as string[],
+    [t],
+  );
+
+  const [patientFirstName, setPatientFirstName] = useState(persona.firstName);
+  const [patientLastName, setPatientLastName] = useState(persona.lastName);
   const [patientConsent, setPatientConsent] = useState(true);
   const [clinicianConsent, setClinicianConsent] = useState(true);
   const [privacyAcknowledged, setPrivacyAcknowledged] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showFullTerms, setShowFullTerms] = useState(false);
 
   const namesProvided = patientFirstName.trim().length > 0 && patientLastName.trim().length > 0;
   const canProceed = patientConsent && clinicianConsent && privacyAcknowledged && namesProvided;
@@ -28,136 +56,164 @@ export default function Consent() {
     return slug || fallback;
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     if (!canProceed) return;
     setIsSubmitting(true);
-
-    // Generate new visit ID in lastname_firstname_id format
     const uniqueSegment = Math.random().toString(36).slice(2, 11);
     const visitId = `${toSlug(patientLastName, "patient")}_${toSlug(patientFirstName, "visit")}_${uniqueSegment}`;
 
-    // Simulate processing delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 400));
 
-    // Fully reset prior visit data before configuring the new encounter
     resetVisit();
     setVisitId(visitId);
     setConsented(true);
+    setScenario(persona.scenarioId);
 
     navigate(`/visit/${visitId}`);
-  };
+  }, [
+    canProceed,
+    navigate,
+    patientFirstName,
+    patientLastName,
+    persona.scenarioId,
+    resetVisit,
+    setConsented,
+    setScenario,
+    setVisitId,
+  ]);
 
   return (
-    <div className="flex w-full flex-col gap-16">
-      <section className="relative overflow-hidden rounded-[var(--radius-lg)] border border-primary-muted/40 bg-gradient-to-br from-surface/80 via-background/60 to-background/40 px-6 py-10 shadow-lg shadow-primary/10 backdrop-blur">
-        <div className="flex flex-wrap items-center gap-6">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white">
+    <div className="flex w-full flex-col gap-12 sm:gap-16">
+      <section className="px-2 sm:px-0">
+        <div className="flex items-start gap-4">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-primary/40">
             <Shield className="h-6 w-6" />
           </span>
-          <div className="leading-tight">
-            <p className="text-[11px] uppercase tracking-[0.3em] text-subtle">Visit readiness</p>
-            <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">Visit Consent & Authorization</h1>
-            <p className="text-sm text-muted-foreground">Required before AI assistance begins</p>
+          <div className="space-y-2">
+            <p className="text-[11px] uppercase tracking-[0.3em] text-primary/70">{t("header.badge")}</p>
+            <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">{t("header.title")}</h1>
+            <p className="max-w-xl text-sm text-muted-foreground sm:text-base">{t("header.subtitle")}</p>
           </div>
         </div>
-        <div className="mt-8 space-y-5 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2 text-lg font-semibold text-foreground">
-            <FileText className="h-5 w-5" />
-            Consent for AI-Assisted Clinical Documentation
+      </section>
+
+      <section className="relative overflow-hidden rounded-[var(--radius-lg)] border border-primary-muted/40 bg-gradient-to-br from-surface/75 via-background/55 to-background/40 px-6 py-12 shadow-lg shadow-primary/10 backdrop-blur">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+            <div className="rounded-[var(--radius-lg)] border border-primary-muted/30 bg-background/45 p-6 shadow-lg shadow-primary/5 backdrop-blur-sm">
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-base font-semibold text-foreground">{t("cards.demoPatient.title")}</h2>
+                  <p className="mt-2 text-sm text-muted-foreground">{persona.summary}</p>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="patient-last-name" className="text-xs uppercase tracking-[0.3em] text-subtle">
+                      {t("cards.demoPatient.labels.lastName")}
+                    </Label>
+                    <Input
+                      id="patient-last-name"
+                      placeholder={t("cards.demoPatient.placeholders.lastName")}
+                      value={patientLastName}
+                      onChange={(e) => setPatientLastName(e.target.value)}
+                      className="h-11 border-primary-muted/40 bg-background/50 text-sm shadow-sm focus-visible:ring-primary"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="patient-first-name" className="text-xs uppercase tracking-[0.3em] text-subtle">
+                      {t("cards.demoPatient.labels.firstName")}
+                    </Label>
+                    <Input
+                      id="patient-first-name"
+                      placeholder={t("cards.demoPatient.placeholders.firstName")}
+                      value={patientFirstName}
+                      onChange={(e) => setPatientFirstName(e.target.value)}
+                      className="h-11 border-primary-muted/40 bg-background/50 text-sm shadow-sm focus-visible:ring-primary"
+                    />
+            </div>
           </div>
-          <p className="text-foreground">In this demo you can expect:</p>
-          <ul className="list-disc space-y-2 pl-5">
-            <li>Ambient capture to assist documentation; recording can be paused at any time.</li>
-            <li>Clinicians review every AI suggestion before it is saved.</li>
-            <li>All visit data remains local unless you choose to export it.</li>
-          </ul>
-        </div>
-        <div className="mt-8 grid gap-4 text-sm text-muted-foreground sm:grid-cols-2">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="patient-last-name" className="text-xs uppercase tracking-[0.3em] text-subtle">
-              Patient last name
-            </Label>
-            <Input
-              id="patient-last-name"
-              placeholder="e.g., Smith"
-              value={patientLastName}
-              onChange={(e) => setPatientLastName(e.target.value)}
-              className="h-9 border-primary-muted/40 bg-background/40 text-sm"
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="patient-first-name" className="text-xs uppercase tracking-[0.3em] text-subtle">
-              Patient first name
-            </Label>
-            <Input
-              id="patient-first-name"
-              placeholder="e.g., Jordan"
-              value={patientFirstName}
-              onChange={(e) => setPatientFirstName(e.target.value)}
-              className="h-9 border-primary-muted/40 bg-background/40 text-sm"
-            />
+            </div>
+
+            <div className="flex flex-col gap-5 rounded-[var(--radius-lg)] border border-primary-muted/30 bg-background/40 p-6 shadow-lg shadow-primary/5 backdrop-blur-sm">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">{t("cards.included.title")}</h2>
+                <ul className="mt-3 space-y-2 pl-4 text-sm leading-relaxed text-foreground">
+                  {includedItems.map((item) => (
+                    <li key={item} className="list-disc">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {showFullTerms && (
+                <div className="space-y-3 text-sm leading-relaxed text-foreground">
+                  <p className="font-semibold">{t("cards.included.fullTerms.title")}</p>
+                  <ul className="space-y-2 pl-4 text-sm leading-relaxed text-foreground/90">
+                    {fullTermsItems.map((item) => (
+                      <li key={item} className="list-disc">
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <Button
+                type="button"
+                variant="link"
+                className="self-start px-0 text-xs font-semibold uppercase tracking-[0.2em]"
+                onClick={() => setShowFullTerms((prev) => !prev)}
+              >
+                {showFullTerms ? t("cards.included.toggle.hide") : t("cards.included.toggle.show")}
+              </Button>
+            </div>
           </div>
         </div>
       </section>
 
       <section className="space-y-10">
         <div className="grid gap-6 lg:grid-cols-2">
-          <Card className="border-border/70 bg-background/60 shadow-md shadow-primary/10">
+          <Card className="border-border/60 bg-background/60 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-lg font-semibold">Shared Visit Consent</CardTitle>
+              <CardTitle className="text-base font-semibold">{t("cards.sharedConsent.title")}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-5 text-sm text-muted-foreground">
-              <p>Together, confirm the basics for this ambient documentation trial:</p>
-              <ul className="list-disc space-y-2 pl-5">
-                <li>The conversation may be recorded and transcribed; it can be paused at any point.</li>
-                <li>AI drafts notes and flags issues, but the clinician keeps final say on every decision.</li>
-                <li>Both parties can request edits or stop the assistance at any time.</li>
-              </ul>
-              <div className="space-y-3 pt-2">
-                <div className="flex items-start gap-3">
+            <CardContent className="space-y-4 text-sm text-muted-foreground">
+              <p className="text-foreground/90">{t("cards.sharedConsent.description")}</p>
+              <div className="space-y-3">
+                <label htmlFor="patient-consent" className="flex items-start gap-3 text-sm text-foreground">
                   <Checkbox
                     id="patient-consent"
                     checked={patientConsent}
                     onCheckedChange={(checked) => setPatientConsent(checked === true)}
                   />
-                  <label htmlFor="patient-consent" className="text-sm leading-relaxed text-foreground">
-                    Patient confirms these expectations and agrees to use the AI documentation helper for this visit.
-                  </label>
-                </div>
-                <div className="flex items-start gap-3">
+                  {sharedConsentItems[0]}
+                </label>
+                <label htmlFor="clinician-consent" className="flex items-start gap-3 text-sm text-foreground">
                   <Checkbox
                     id="clinician-consent"
                     checked={clinicianConsent}
                     onCheckedChange={(checked) => setClinicianConsent(checked === true)}
                   />
-                  <label htmlFor="clinician-consent" className="text-sm leading-relaxed text-foreground">
-                    Clinician confirms licensure, retains responsibility for outcomes, and will review the AI outputs before sign-off.
-                  </label>
-                </div>
+                  {sharedConsentItems[1]}
+                </label>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-border/70 bg-background/60 shadow-md shadow-primary/10">
+          <Card className="border-border/60 bg-background/60 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-lg font-semibold">Privacy & Data Essentials</CardTitle>
+              <CardTitle className="text-base font-semibold">{t("cards.privacy.title")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-sm text-muted-foreground">
-              <ul className="list-disc space-y-2 pl-5">
-                <li>Captured audio and notes stay on this device unless you choose to export or delete them.</li>
-                <li>No training or billing systems are connected in this sandbox demo.</li>
-                <li>You can clear the visit history immediately after the session.</li>
-              </ul>
-              <div className="flex items-start gap-3">
+              <p className="text-foreground/90">{t("cards.privacy.description")}</p>
+              <label htmlFor="privacy-acknowledged" className="flex items-start gap-3 text-sm text-foreground">
                 <Checkbox
                   id="privacy-acknowledged"
                   checked={privacyAcknowledged}
                   onCheckedChange={(checked) => setPrivacyAcknowledged(checked === true)}
                 />
-                <label htmlFor="privacy-acknowledged" className="text-sm leading-relaxed text-foreground">
-                  We understand how visit data is stored in this demo environment.
-                </label>
-              </div>
+                {t("cards.privacy.acknowledgement")}
+              </label>
             </CardContent>
           </Card>
         </div>
@@ -171,24 +227,26 @@ export default function Consent() {
             disabled={isSubmitting}
             className="rounded-full px-6"
           >
-            Cancel
+            {t("common:actions.cancel")}
           </Button>
 
           <div className="flex flex-col gap-2 sm:items-end">
-            <Button
-              onClick={handleSubmit}
-              disabled={!canProceed || isSubmitting}
-              size="lg"
-              className="rounded-full bg-gradient-primary px-8 text-sm font-semibold uppercase tracking-[0.24em] text-primary-foreground hover:opacity-90"
-            >
-              {isSubmitting ? "Setting up visit..." : "Begin AI-Assisted Visit"}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => void handleSubmit()}
+                disabled={!canProceed || isSubmitting}
+                size="lg"
+                className="rounded-full bg-gradient-primary px-8 text-sm font-semibold uppercase tracking-[0.24em] text-primary-foreground hover:opacity-90"
+              >
+                {isSubmitting ? t("actions.primary.loading") : t("actions.primary.default")}
+              </Button>
+            </div>
             <p
               className={`min-h-[1.25rem] text-xs text-muted-foreground transition-opacity ${canProceed ? "opacity-0" : "opacity-100"}`}
               aria-live="polite"
               aria-hidden={canProceed}
             >
-              All consent items and patient names must be completed to proceed.
+              {t("actions.validationWarning")}
             </p>
           </div>
         </div>

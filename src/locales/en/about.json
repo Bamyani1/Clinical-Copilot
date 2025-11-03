@@ -1,0 +1,66 @@
+{
+  "hero": {
+    "eyebrow": "Clinical Copilot",
+    "title": "Deterministic clinical rehearsal for primary care teams.",
+    "description": "Clinical Copilot pairs ambient voice capture with curated references to support decision-making in real time. The sandbox assembles differentials, workups, and documentation cues while keeping clinicians fully in control."
+  },
+  "principles": {
+    "eyebrow": "Core Values",
+    "title": "How we build trust",
+    "description": "Clinical Copilot is guided by three principles that keep the experience safe, effective, and clinician-led—prioritizing expertise, evidence-based medicine, and patient privacy at every step.",
+    "items": [
+      {
+        "title": "Physician-centered design",
+        "points": [
+          "Every recommendation requires explicit physician review and approval before implementation.",
+          "Critical alerts and red-flag warnings are surfaced immediately for clinician assessment.",
+          "Complete audit trails ensure full accountability and transparency in clinical decision-making."
+        ]
+      },
+      {
+        "title": "Evidence-based guidance",
+        "points": [
+          "Differential considerations draw from clinical guidelines and evidence-based protocols.",
+          "Treatment suggestions are aligned with current best practices and medical standards.",
+          "Fixtures are reviewed regularly to reflect updated references and stay aligned with published pathways."
+        ]
+      },
+      {
+        "title": "Patient privacy first",
+        "points": [
+          "Informed consent is required before any decision-support workflow begins.",
+          "Patients maintain full control over their data with the ability to opt out at any time.",
+          "All patient information stays local to the browser during demos with export under clinician control."
+        ]
+      }
+    ]
+  },
+  "workflow": {
+    "eyebrow": "Clinical Workflow",
+    "title": "Seamless integration into your practice",
+    "description": "Clinical Copilot follows a structured five-phase workflow designed to support physicians throughout the patient encounter. Each phase includes built-in checkpoints that ensure physician oversight while streamlining documentation and decision support.",
+    "phaseLabel": "Phase {{index}}",
+    "steps": [
+      {
+        "title": "Patient Consent",
+        "detail": "Secure informed consent process ensures both patient and physician understand the guided documentation workflow."
+      },
+      {
+        "title": "Ambient Capture",
+        "detail": "Voice recognition captures the natural patient-physician conversation along with vital signs and examination findings in real time."
+      },
+      {
+        "title": "Guided Analysis",
+        "detail": "Curated rules process clinical data to generate differential diagnoses, identify diagnostic gaps, and recommend evidence-based workups."
+      },
+      {
+        "title": "Clinical Review",
+        "detail": "Physicians review surfaced insights including safety alerts, diagnostic recommendations, and treatment options with full clinical context."
+      },
+      {
+        "title": "Documentation",
+        "detail": "System generates comprehensive clinical notes ready for EHR integration, requiring only physician review and electronic signature."
+      }
+    ]
+  }
+}

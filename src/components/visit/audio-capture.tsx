@@ -9,6 +9,7 @@ import { createSTTProvider } from "@/lib/services/mock-stt";
 import type { ScenarioId } from "@/lib/types";
 import { SCENARIO_METADATA } from "@/fixtures";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 const SCENARIO_SHORTCUTS: ReadonlyArray<{ id: ScenarioId; label: string }> = Object.values(SCENARIO_METADATA).map(
   ({ id, label }) => ({ id, label }),
@@ -17,6 +18,7 @@ const SCENARIO_SHORTCUTS: ReadonlyArray<{ id: ScenarioId; label: string }> = Obj
 export function AudioCapture() {
   const { isRecording, setRecording, addTranscriptEntry, scenarioId, setScenario } = useVisitStore();
   const { sttProvider } = useSettingsStore();
+  const { t } = useTranslation("visit");
   const [audioLevel, setAudioLevel] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [sttService] = useState(() => createSTTProvider());
@@ -63,7 +65,8 @@ export function AudioCapture() {
       setError(null);
       const targetScenario = requestedScenario ?? scenarioId;
       if (!targetScenario) {
-        throw new Error("Scenario must be selected before recording.");
+        setError(t("audioCapture.errors.noScenario"));
+        return;
       }
 
       if (requestedScenario && requestedScenario !== scenarioId) {
@@ -75,7 +78,7 @@ export function AudioCapture() {
       setRecording(true);
       beginLevelSimulation();
     } catch (err) {
-      setError("Recording didn't start. Check microphone permissions and try again.");
+      setError(t("audioCapture.errors.startFailed"));
       console.error("Recording error:", err);
     }
   };
@@ -86,7 +89,7 @@ export function AudioCapture() {
       setRecording(false);
       clearLevelSimulation();
     } catch (err) {
-      setError("Recording didn't stop. Try again.");
+      setError(t("audioCapture.errors.stopFailed"));
       console.error("Stop recording error:", err);
     }
   };
@@ -105,7 +108,7 @@ export function AudioCapture() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg font-semibold">
           <Volume2 className="h-5 w-5" />
-          Audio Capture
+          {t("audioCapture.title")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -133,7 +136,7 @@ export function AudioCapture() {
                 className="bg-gradient-primary hover:opacity-90"
               >
                 <Mic className="h-5 w-5 mr-2" />
-                Start Recording
+                {t("audioCapture.controls.start")}
               </Button>
             ) : (
               <Button
@@ -142,7 +145,7 @@ export function AudioCapture() {
                 size="lg"
               >
                 <Square className="h-4 w-4 mr-2" />
-                Stop Recording
+                {t("audioCapture.controls.stop")}
               </Button>
             )}
           </div>
@@ -151,7 +154,7 @@ export function AudioCapture() {
           {isRecording && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <div className="w-2 h-2 bg-red-flag rounded-full animate-pulse" />
-              Recording in progress.
+              {t("audioCapture.controls.status")}
             </div>
           )}
         </div>
@@ -160,7 +163,7 @@ export function AudioCapture() {
         {sttProvider === 'mock' && (
           <div className="border-t pt-4 space-y-2">
             <div className="text-xs font-semibold tracking-wide text-muted-foreground/90">
-              Mock scenarios (development):
+              {t("audioCapture.mock.label")}
             </div>
             <div className="grid gap-2">
               {SCENARIO_SHORTCUTS.map((scenario) => {

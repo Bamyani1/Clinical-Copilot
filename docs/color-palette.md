@@ -82,7 +82,6 @@
 
 ## Additional Color Usages
 - Recharts integration (`src/components/ui/chart.tsx`) still references library defaults `#ccc` and `#fff`, but tokens provide runtime overrides.
-- Ambient particle field (`src/three/AmbientScene.tsx`) retains its cyan glow `#1fd1d0` to contrast against both themes.
 - Legacy Vite starter styles (`src/App.css`) keep subtle drop shadows `#646cffaa` / `#61dafbaa` and helper gray `#888`.
 - Interface elements that rely on Tailwind utilities (`bg-background`, `text-muted-foreground`, etc.) now resolve to the spring/earth palette above.
 

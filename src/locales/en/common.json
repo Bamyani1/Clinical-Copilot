@@ -1,0 +1,36 @@
+{
+  "app": {
+    "name": "Clinical Copilot Lab",
+    "tagline": "Clinical Copilot",
+    "launch": "Launch Visit"
+  },
+  "nav": {
+    "overview": "Overview",
+    "about": "About"
+  },
+  "status": {
+    "offline": "You are offline. Some features may be unavailable."
+  },
+  "actions": {
+    "start": "Start",
+    "stop": "Stop",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "startDemo": "Start Demo",
+    "startNewVisit": "Start New Visit",
+    "returnHome": "Return Home",
+    "exportSummary": "Export Summary"
+  },
+  "labels": {
+    "skipToContent": "Skip to content",
+    "openNavigation": "Open navigation menu",
+    "visitId": "Visit ID"
+  },
+  "messages": {
+    "recordingInProgress": "Recording in progress.",
+    "autoStartPaused": "Auto-start paused"
+  },
+  "footer": {
+    "legal": "Clinical Copilot — Experimental clinician workflow sandbox."
+  }
+}

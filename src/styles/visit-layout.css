@@ -1,0 +1,60 @@
+.visit-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.visit-mobile {
+  width: 100%;
+}
+
+.visit-app-layout {
+  display: none;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.visit-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-height: 0;
+}
+
+.visit-column--left {
+  gap: 1.5rem;
+}
+
+.visit-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.visit-card--audio {
+  flex: 0 0 auto;
+}
+
+.visit-card--transcript,
+.visit-card--case,
+.visit-card--support {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+@media (max-width: 1023.98px) {
+  .visit-page {
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .visit-app-layout {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+    align-items: stretch;
+  }
+}

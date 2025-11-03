@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FileText, User, UserCheck } from "lucide-react";
@@ -6,6 +6,7 @@ import { useVisitStore } from "@/lib/store";
 import type { Speaker } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 const transcriptBubbleBase =
   "group rounded-[var(--radius-md)] border border-border/60 bg-background/80 p-4 text-foreground shadow-sm shadow-primary/10 backdrop-blur transition-colors";
@@ -34,8 +35,13 @@ const getConfidenceTone = (confidence: number) => {
   return "border-destructive/60 bg-destructive/10 text-destructive";
 };
 
+let preservedTranscriptCardHeight: number | null = null;
+
 export function TranscriptViewer() {
   const { transcript } = useVisitStore();
+  const { t } = useTranslation("visit");
+  const cardRef = useRef<HTMLDivElement | null>(null);
+  const [lockedHeight, setLockedHeight] = useState<number | null>(preservedTranscriptCardHeight);
 
   const formatTimestamp = (timestamp: number) => {
     const date = new Date(timestamp);
@@ -54,23 +60,84 @@ export function TranscriptViewer() {
     }
   }, [transcript.length]);
 
+  useLayoutEffect(() => {
+    if (lockedHeight != null) {
+      return;
+    }
+
+    if (preservedTranscriptCardHeight != null) {
+      setLockedHeight(preservedTranscriptCardHeight);
+      return;
+    }
+
+    if (typeof window !== "undefined") {
+      const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
+      if (!isDesktop) {
+        return;
+      }
+    }
+
+    const measure = () => {
+      const element = cardRef.current;
+      if (!element) {
+        return;
+      }
+
+      const measured = element.getBoundingClientRect().height;
+      if (measured > 0) {
+        preservedTranscriptCardHeight = measured;
+        setLockedHeight(measured);
+      } else {
+        rafId = requestAnimationFrame(measure);
+      }
+    };
+
+    let rafId = requestAnimationFrame(measure);
+    return () => cancelAnimationFrame(rafId);
+  }, [lockedHeight]);
+
+  useEffect(() => {
+    if (lockedHeight == null) {
+      return;
+    }
+
+    const card = cardRef.current;
+    if (!card) return;
+
+    const wrapper = card.parentElement as HTMLElement | null;
+    if (wrapper) {
+      wrapper.style.height = `${lockedHeight}px`;
+      wrapper.style.minHeight = `${lockedHeight}px`;
+      wrapper.style.maxHeight = `${lockedHeight}px`;
+      wrapper.style.flex = "0 0 auto";
+    }
+  }, [lockedHeight]);
+
   return (
-    <Card className="flex min-h-[18rem] w-full flex-col overflow-hidden max-h-[65vh] lg:h-[36rem] lg:max-h-none">
+    <Card
+      ref={cardRef}
+      className="flex h-full min-h-0 flex-col"
+      style={
+        lockedHeight != null
+          ? { height: lockedHeight, minHeight: lockedHeight, maxHeight: lockedHeight }
+          : undefined
+      }
+    >
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg font-semibold">
           <FileText className="h-5 w-5" />
-          Live Transcript
+          {t("transcript.title")}
           {transcript.length > 0 && (
             <Badge variant="secondary" className="ml-auto">
-              {transcript.length} entries
+              {t("transcript.entries", { count: transcript.length })}
             </Badge>
           )}
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-1 flex-col overflow-hidden px-6 pb-6 pt-0">
+      <CardContent className="flex min-h-0 flex-1 flex-col overflow-hidden px-6 pb-6 pt-0">
         <ScrollArea
           ref={scrollAreaRef}
-          className="flex-1 pr-4"
+          className="flex-1 min-h-0 pr-4"
           role="log"
           aria-live="polite"
           aria-relevant="additions text"
@@ -79,8 +146,8 @@ export function TranscriptViewer() {
             <div className="flex items-center justify-center h-32 text-muted-foreground">
               <div className="text-center">
                 <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p>No transcript yet.</p>
-                <p className="text-sm">Start recording to capture the conversation.</p>
+                <p>{t("transcript.empty.title")}</p>
+                <p className="text-sm">{t("transcript.empty.subtitle")}</p>
               </div>
             </div>
           ) : (
@@ -93,14 +160,14 @@ export function TranscriptViewer() {
                     <div className="flex flex-wrap items-center gap-3">
                       <span className={cn(speakerChipBase, styles.chip)}>
                         <Icon className={cn("h-3.5 w-3.5", styles.iconClass)} />
-                        <span>{entry.speaker === "doctor" ? "Doctor" : "Patient"}</span>
+                        <span>{entry.speaker === "doctor" ? t("transcript.speaker.doctor") : t("transcript.speaker.patient")}</span>
                       </span>
                       <span className={timestampClass}>{formatTimestamp(entry.timestamp)}</span>
                       {entry.confidence !== undefined && (
                         <Badge
                           variant="outline"
                           className={cn(confidenceBadgeBase, getConfidenceTone(entry.confidence))}
-                          aria-label={`Transcript confidence ${Math.round(entry.confidence * 100)} percent`}
+                          aria-label={t("transcript.confidence", { value: Math.round(entry.confidence * 100) })}
                         >
                           {Math.round(entry.confidence * 100)}%
                         </Badge>

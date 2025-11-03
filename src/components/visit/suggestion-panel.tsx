@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, type RefObject } from "react";
-import { Brain, TestTube, Pill, AlertTriangle, CheckCircle2, X, Loader2, HelpCircle } from "lucide-react";
+import { Brain, TestTube, Pill, AlertTriangle, CheckCircle2, X, Loader2, HelpCircle, Sparkles } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,8 +9,9 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useVisitStore } from "@/lib/store";
-import { createReasoner, FixtureLoadError, type ScenarioFixtureFallback } from "@/lib/services/mock-reasoner";
+import { createInsightEngine, FixtureLoadError, type ScenarioFixtureFallback } from "@/lib/services/mock-insight-engine";
 import type { SuggestionFixture } from "@/fixtures/types";
+import { useTranslation } from "react-i18next";
 
 export function SuggestionPanel() {
   const {
@@ -27,7 +28,7 @@ export function SuggestionPanel() {
   } = useVisitStore();
 
   const [isGenerating, setIsGenerating] = useState(false);
-  const [reasoner] = useState(() => createReasoner());
+  const [insightEngine] = useState(() => createInsightEngine());
   const [acceptedItems, setAcceptedItems] = useState<{
     differentials: string[];
     workup: string[];
@@ -38,9 +39,16 @@ export function SuggestionPanel() {
     medications: [],
   });
   const [fixtureStatus, setFixtureStatus] = useState<{ tone: "warning" | "error"; message: string } | null>(null);
+  const [coachmarkVisible, setCoachmarkVisible] = useState(false);
+  const [coachmarkDismissed, setCoachmarkDismissed] = useState(false);
   const lastAutoTriggerRef = useRef<string>("");
+  const { t } = useTranslation("visit");
 
   const hasChiefComplaint = Boolean(caseData.hpi?.chiefComplaint);
+  const displayDifferentials = differentials;
+  const displayWorkup = workupSuggestions;
+  const displayMedications = medicationSuggestions;
+  const displayRedFlags = redFlags;
   const activeRedFlags = redFlags.filter(flag => flag.active);
 
   const differentialScrollRef = useRef<HTMLDivElement | null>(null);
@@ -131,7 +139,7 @@ export function SuggestionPanel() {
     setIsGenerating(true);
     setFixtureStatus(null);
     try {
-      const response = await reasoner.generateReasoning({
+      const response = await insightEngine.generateReasoning({
         caseData,
         scenarioId,
         guidelines: [],
@@ -150,19 +158,19 @@ export function SuggestionPanel() {
           });
           setFixtureStatus({
             tone: "warning",
-            message: `AI suggestions for "${error.identifier}" are unavailable. Showing fallback scenario "${fallback.scenarioId}".`,
+            message: t("suggestionPanel.status.fallback", { id: error.identifier, fallbackId: fallback.scenarioId }),
           });
         } else {
           setFixtureStatus({
             tone: "error",
-            message: "AI suggestions are unavailable because required fixtures could not be loaded.",
+            message: t("suggestionPanel.status.missing"),
           });
         }
         return;
       }
       setFixtureStatus({
         tone: "error",
-        message: "An unexpected error prevented the AI suggestions from loading. Please continue with clinical judgment.",
+        message: t("suggestionPanel.status.unexpected"),
       });
     } finally {
       setIsGenerating(false);
@@ -170,13 +178,21 @@ export function SuggestionPanel() {
   }, [
     caseData,
     scenarioId,
-    reasoner,
+    insightEngine,
     applySuggestionPayload,
+    t,
   ]);
 
   useEffect(() => {
     if (!hasChiefComplaint) {
       lastAutoTriggerRef.current = "";
+      setDifferentials([]);
+      setWorkupSuggestions([]);
+      setMedicationSuggestions([]);
+      setRedFlags([]);
+      setAcceptedItems({ differentials: [], workup: [], medications: [] });
+      setFixtureStatus(null);
+      setCoachmarkVisible(false);
       return;
     }
 
@@ -197,7 +213,16 @@ export function SuggestionPanel() {
 
     lastAutoTriggerRef.current = signature;
     void generateSuggestions();
-  }, [caseData, scenarioId, hasChiefComplaint, generateSuggestions]);
+  }, [
+    caseData,
+    scenarioId,
+    hasChiefComplaint,
+    generateSuggestions,
+    setDifferentials,
+    setWorkupSuggestions,
+    setMedicationSuggestions,
+    setRedFlags,
+  ]);
 
   useEffect(() => {
     if (differentials.length > 0) {
@@ -216,6 +241,12 @@ export function SuggestionPanel() {
       scrollViewport(medicationScrollRef, "bottom");
     }
   }, [medicationSuggestions.length]);
+
+  useEffect(() => {
+    if (differentials.length > 0 && !coachmarkDismissed) {
+      setCoachmarkVisible(true);
+    }
+  }, [coachmarkDismissed, differentials.length]);
 
   const toggleAcceptance = (category: keyof typeof acceptedItems, id: string) => {
     setAcceptedItems(prev => ({
@@ -237,12 +268,12 @@ export function SuggestionPanel() {
   };
 
   return (
-    <Card className="flex h-full flex-col">
+    <Card className="relative flex h-full min-h-0 flex-col">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg font-semibold">
           <Brain className="h-5 w-5" />
           <span className="flex items-center gap-2">
-            AI Suggestions
+            {t("suggestionPanel.title")}
             {isGenerating && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
           </span>
           <Tooltip>
@@ -250,20 +281,19 @@ export function SuggestionPanel() {
               <button
                 type="button"
                 className="ml-auto inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background/50 text-muted-foreground transition hover:border-primary-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                aria-label="How to interpret AI suggestions"
+                aria-label={t("suggestionPanel.tooltip.trigger")}
               >
                 <HelpCircle className="h-4 w-4" aria-hidden />
               </button>
             </TooltipTrigger>
             <TooltipContent align="end" className="max-w-sm text-left leading-relaxed">
-              Confidence bars reflect the model&apos;s certainty. Priority badges mark urgent follow-up versus routine tasks.
-              Use the accept buttons to capture items that should flow into documentation.
+              {t("suggestionPanel.tooltip.content")}
             </TooltipContent>
           </Tooltip>
         </CardTitle>
-        <p className="text-sm text-muted-foreground">Generated automatically from the evolving clinical case data.</p>
+        <p className="text-sm text-muted-foreground">{t("suggestionPanel.subtitle")}</p>
       </CardHeader>
-      <CardContent className="flex-1 space-y-6">
+      <CardContent className="flex-1 min-h-0 space-y-6 overflow-y-auto">
         {fixtureStatus && (
           <Alert
             variant={fixtureStatus.tone === "error" ? "destructive" : "default"}
@@ -281,48 +311,49 @@ export function SuggestionPanel() {
             <AccordionTrigger className="flex items-center justify-between px-4 py-3 text-sm font-semibold">
               <span className="flex items-center gap-2">
                 <Brain className="h-4 w-4" />
-                Differential diagnoses
+                {t("suggestionPanel.accordion.differentials")}
               </span>
-              {differentials.length > 0 && (
+              {displayDifferentials.length > 0 && (
                 <Badge variant="secondary" className="text-xs">
-                  {differentials.length}
+                  {displayDifferentials.length}
                 </Badge>
               )}
             </AccordionTrigger>
             <AccordionContent className="border-t border-border/60 bg-background/80 px-4 py-4 text-sm">
               {!hasChiefComplaint ? (
-                <p className="text-xs text-muted-foreground">
-                  Add a chief complaint to start generating AI suggestions.
-                </p>
-              ) : differentials.length === 0 ? (
-                <p className="text-xs text-muted-foreground">No differential diagnoses yet.</p>
+                <p className="text-xs text-muted-foreground">{t("suggestionPanel.accordion.empty.chiefComplaint")}</p>
+              ) : displayDifferentials.length === 0 ? (
+                <p className="text-xs text-muted-foreground">{t("suggestionPanel.accordion.empty.differentials")}</p>
               ) : (
                 <ScrollArea ref={differentialScrollRef} className="h-72 pr-3" aria-live="polite" aria-relevant="additions">
                   <div className="divide-y divide-border/40">
-                    {differentials.map(diff => (
+                    {displayDifferentials.map(diff => (
                       <div key={diff.id} className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0">
                         <div className="flex items-start justify-between gap-3">
                           <div>
                             <p className="text-sm font-semibold text-foreground">{diff.diagnosis}</p>
                             <p className="mt-2 text-xs text-muted-foreground">{diff.rationale}</p>
                           </div>
-                          <div className="flex flex-col items-end gap-2">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Badge variant="outline" className={`text-xs ${getConfidenceColor(diff.confidence)}`}>
-                                  {Math.round(diff.confidence * 100)}%
-                                </Badge>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                Confidence indicates the model&apos;s relative certainty in this diagnosis.
-                              </TooltipContent>
-                            </Tooltip>
-                            <Button
-                              size="icon"
-                              variant={acceptedItems.differentials.includes(diff.id) ? "default" : "outline"}
-                              onClick={() => toggleAcceptance("differentials", diff.id)}
-                              className="h-7 w-7"
-                            >
+                        <div className="flex flex-col items-end gap-2">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Badge variant="outline" className={`text-xs ${getConfidenceColor(diff.confidence)}`}>
+                                {Math.round(diff.confidence * 100)}%
+                              </Badge>
+                            </TooltipTrigger>
+                            <TooltipContent>{t("suggestionPanel.accordion.tooltips.confidence")}</TooltipContent>
+                          </Tooltip>
+                          <Button
+                            size="icon"
+                            variant={acceptedItems.differentials.includes(diff.id) ? "default" : "outline"}
+                            onClick={() => toggleAcceptance("differentials", diff.id)}
+                            className="h-7 w-7"
+                            aria-label={
+                              acceptedItems.differentials.includes(diff.id)
+                                ? t("suggestionPanel.accordion.actions.reject")
+                                : t("suggestionPanel.accordion.actions.accept")
+                            }
+                          >
                               {acceptedItems.differentials.includes(diff.id) ? (
                                 <CheckCircle2 className="h-3.5 w-3.5" />
                               ) : (
@@ -347,25 +378,23 @@ export function SuggestionPanel() {
             <AccordionTrigger className="flex items-center justify-between px-4 py-3 text-sm font-semibold">
               <span className="flex items-center gap-2">
                 <TestTube className="h-4 w-4" />
-                Workup suggestions
+                {t("suggestionPanel.accordion.workup")}
               </span>
-              {workupSuggestions.length > 0 && (
+              {displayWorkup.length > 0 && (
                 <Badge variant="secondary" className="text-xs">
-                  {workupSuggestions.length}
+                  {displayWorkup.length}
                 </Badge>
               )}
             </AccordionTrigger>
             <AccordionContent className="border-t border-border/60 bg-background/80 px-4 py-4 text-sm">
               {!hasChiefComplaint ? (
-                <p className="text-xs text-muted-foreground">
-                  Once intake begins we will surface recommended labs and imaging.
-                </p>
-              ) : workupSuggestions.length === 0 ? (
-                <p className="text-xs text-muted-foreground">No workup suggestions yet.</p>
+                <p className="text-xs text-muted-foreground">{t("suggestionPanel.accordion.empty.chiefComplaint")}</p>
+              ) : displayWorkup.length === 0 ? (
+                <p className="text-xs text-muted-foreground">{t("suggestionPanel.accordion.empty.workup")}</p>
               ) : (
                 <ScrollArea ref={workupScrollRef} className="h-72 pr-3" aria-live="polite" aria-relevant="additions">
                   <div className="divide-y divide-border/40">
-                    {workupSuggestions.map(workup => (
+                    {displayWorkup.map(workup => (
                       <div key={workup.id} className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0">
                         <div className="flex items-start justify-between gap-3">
                           <div>
@@ -373,13 +402,13 @@ export function SuggestionPanel() {
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <Badge variant="outline" className={`mt-2 text-xs ${getPriorityColor(workup.priority)}`}>
-                                  {workup.priority} • {workup.category}
+                                  {t(`suggestionPanel.accordion.priority.${workup.priority}`)} • {workup.category}
                                 </Badge>
                               </TooltipTrigger>
                               <TooltipContent>
                                 {workup.priority === "urgent"
-                                  ? "Urgent items should be actioned during the visit."
-                                  : "Routine items can be scheduled after the encounter."}
+                                  ? t("suggestionPanel.accordion.tooltips.priorityUrgent")
+                                  : t("suggestionPanel.accordion.tooltips.priorityRoutine")}
                               </TooltipContent>
                             </Tooltip>
                           </div>
@@ -388,6 +417,11 @@ export function SuggestionPanel() {
                             variant={acceptedItems.workup.includes(workup.id) ? "default" : "outline"}
                             onClick={() => toggleAcceptance("workup", workup.id)}
                             className="h-7 w-7"
+                            aria-label={
+                              acceptedItems.workup.includes(workup.id)
+                                ? t("suggestionPanel.accordion.actions.reject")
+                                : t("suggestionPanel.accordion.actions.accept")
+                            }
                           >
                             {acceptedItems.workup.includes(workup.id) ? (
                               <CheckCircle2 className="h-3.5 w-3.5" />
@@ -412,23 +446,23 @@ export function SuggestionPanel() {
             <AccordionTrigger className="flex items-center justify-between px-4 py-3 text-sm font-semibold">
               <span className="flex items-center gap-2">
                 <Pill className="h-4 w-4" />
-                Medication suggestions
+                {t("suggestionPanel.accordion.medications")}
               </span>
-              {medicationSuggestions.length > 0 && (
+              {displayMedications.length > 0 && (
                 <Badge variant="secondary" className="text-xs">
-                  {medicationSuggestions.length}
+                  {displayMedications.length}
                 </Badge>
               )}
             </AccordionTrigger>
             <AccordionContent className="border-t border-border/60 bg-background/80 px-4 py-4 text-sm">
               {!hasChiefComplaint ? (
-                <p className="text-xs text-muted-foreground">Capture key history to populate first-line therapy ideas.</p>
-              ) : medicationSuggestions.length === 0 ? (
-                <p className="text-xs text-muted-foreground">No medication suggestions yet.</p>
+                <p className="text-xs text-muted-foreground">{t("suggestionPanel.accordion.empty.chiefComplaint")}</p>
+              ) : displayMedications.length === 0 ? (
+                <p className="text-xs text-muted-foreground">{t("suggestionPanel.accordion.empty.medications")}</p>
               ) : (
                 <ScrollArea ref={medicationScrollRef} className="h-72 pr-3" aria-live="polite" aria-relevant="additions">
                   <div className="divide-y divide-border/40">
-                    {medicationSuggestions.map(med => (
+                    {displayMedications.map(med => (
                       <div key={med.id} className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0">
                         <div className="flex items-start justify-between gap-3">
                           <div>
@@ -437,7 +471,11 @@ export function SuggestionPanel() {
                             {med.contraindications && med.contraindications.length > 0 && (
                               <div className="flex items-start gap-2 rounded-md bg-background/80 px-3 py-2 text-xs text-muted-foreground shadow-inner">
                                 <AlertTriangle className="mt-0.5 h-4 w-4 text-warning" />
-                                <span className="text-foreground/80">Contraindications: <span className="text-foreground">{med.contraindications.join(", ")}</span></span>
+                                <span className="text-foreground/80">
+                                  {t("suggestionPanel.accordion.contraindications", {
+                                    items: med.contraindications.join(", "),
+                                  })}
+                                </span>
                               </div>
                             )}
                           </div>
@@ -447,6 +485,11 @@ export function SuggestionPanel() {
                             onClick={() => toggleAcceptance("medications", med.id)}
                             disabled={med.requiresConfirmation && !caseData.demographics?.age}
                             className="h-7 w-7"
+                            aria-label={
+                              acceptedItems.medications.includes(med.id)
+                                ? t("suggestionPanel.accordion.actions.reject")
+                                : t("suggestionPanel.accordion.actions.accept")
+                            }
                           >
                             {acceptedItems.medications.includes(med.id) ? (
                               <CheckCircle2 className="h-3.5 w-3.5" />
@@ -468,19 +511,19 @@ export function SuggestionPanel() {
           <div className="flex items-center justify-between">
             <h3 className="flex items-center gap-2 text-sm font-semibold">
               <AlertTriangle className="h-4 w-4" />
-              Red flag monitor
+              {t("suggestionPanel.accordion.redFlags.title")}
             </h3>
             {activeRedFlags.length > 0 && (
               <Badge variant="destructive" className="text-xs">
-                {activeRedFlags.length} active
+                {t("suggestionPanel.accordion.redFlags.activeCount", { count: activeRedFlags.length })}
               </Badge>
             )}
           </div>
-          {redFlags.length === 0 ? (
-            <p className="text-xs text-muted-foreground">No red flags captured yet.</p>
+          {displayRedFlags.length === 0 ? (
+            <p className="text-xs text-muted-foreground">{t("suggestionPanel.accordion.redFlags.none")}</p>
           ) : (
             <div className="space-y-3">
-              {redFlags.map(flag => (
+              {displayRedFlags.map(flag => (
                 <div
                   key={flag.id}
                   className={`rounded-lg border p-4 shadow-sm ${
@@ -503,13 +546,15 @@ export function SuggestionPanel() {
                                 : "border-warning text-warning"
                             }
                           >
-                            {flag.severity === "critical" ? "Critical" : "Urgent"}
+                            {flag.severity === "critical"
+                              ? t("suggestionPanel.accordion.redFlags.severity.critical")
+                              : t("suggestionPanel.accordion.redFlags.severity.urgent")}
                           </Badge>
                         </TooltipTrigger>
                         <TooltipContent>
                           {flag.severity === "critical"
-                            ? "Critical flags require immediate escalation."
-                            : "Urgent flags need prompt evaluation during this visit."}
+                            ? t("suggestionPanel.accordion.redFlags.severity.criticalHelp")
+                            : t("suggestionPanel.accordion.redFlags.severity.urgentHelp")}
                         </TooltipContent>
                       </Tooltip>
                       <Tooltip>
@@ -518,13 +563,15 @@ export function SuggestionPanel() {
                             variant={flag.active ? "destructive" : "outline"}
                             className={flag.active ? "bg-red-flag text-red-flag-foreground" : "text-muted-foreground"}
                           >
-                            {flag.active ? "Active" : "Cleared"}
+                            {flag.active
+                              ? t("suggestionPanel.accordion.redFlags.status.active")
+                              : t("suggestionPanel.accordion.redFlags.status.cleared")}
                           </Badge>
                         </TooltipTrigger>
                         <TooltipContent>
                           {flag.active
-                            ? "Active red flags remain unresolved for this patient."
-                            : "Cleared flags have been addressed or ruled out."}
+                            ? t("suggestionPanel.accordion.redFlags.status.activeHelp")
+                            : t("suggestionPanel.accordion.redFlags.status.clearedHelp")}
                         </TooltipContent>
                       </Tooltip>
                     </div>
@@ -535,6 +582,33 @@ export function SuggestionPanel() {
           )}
         </div>
       </CardContent>
+      {coachmarkVisible && (
+        <div
+          className="pointer-events-auto absolute inset-x-4 top-[6.75rem] z-20 rounded-[var(--radius-md)] border border-primary/40 bg-background/95 p-5 shadow-xl shadow-primary/20 backdrop-blur"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="flex items-start gap-3">
+            <span className="mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-primary">
+              <Sparkles className="h-4 w-4" aria-hidden />
+            </span>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <p className="font-semibold text-foreground">{t("suggestionPanel.coachmark.title")}</p>
+              <p>{t("suggestionPanel.coachmark.body")}</p>
+              <Button
+                size="sm"
+                className="mt-2 rounded-full bg-primary text-primary-foreground"
+                onClick={() => {
+                  setCoachmarkVisible(false);
+                  setCoachmarkDismissed(true);
+                }}
+              >
+                {t("suggestionPanel.coachmark.dismiss")}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </Card>
   );
 }

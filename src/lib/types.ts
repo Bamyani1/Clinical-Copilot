@@ -151,8 +151,8 @@ export interface STTProvider {
   getScenario?(): ScenarioId;
 }
 
-// LLM Provider Types
-export interface LLMProvider {
+// Insight engine types
+export interface InsightEngine {
   name: string;
   extractCase(request: CaseExtractionRequest): Promise<CaseExtractionResponse>;
   generateReasoning(request: ReasoningRequest): Promise<ReasoningResponse>;

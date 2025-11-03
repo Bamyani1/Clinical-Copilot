@@ -1,0 +1,67 @@
+{
+  "persona": {
+    "firstName": "Jane",
+    "lastName": "Doe",
+    "summary": ""
+  },
+  "header": {
+    "badge": "Demo quick-start",
+    "title": "Consent & Launch",
+    "subtitle": "We pre-filled the visit so you can focus on the workflow."
+  },
+  "cards": {
+    "demoPatient": {
+      "title": "Demo patient",
+      "labels": {
+        "lastName": "Patient last name",
+        "firstName": "Patient first name"
+      },
+      "placeholders": {
+        "lastName": "e.g., Doe",
+        "firstName": "e.g., Jane"
+      }
+    },
+    "included": {
+      "title": "What’s included",
+      "items": [
+        "Ambient audio capture keeps the clinician focused on the patient.",
+        "Decision support delivers structured notes, red flags, and treatment suggestions.",
+        "Everything stays on this device unless you export it."
+      ],
+      "toggle": {
+        "show": "See full terms",
+        "hide": "Hide full terms"
+      },
+      "fullTerms": {
+        "title": "Full demo terms & privacy notice",
+        "items": [
+          "The conversation may be recorded and transcribed; it can be paused at any time.",
+          "Clinicians review every suggestion before it is saved or exported.",
+          "Captured audio and notes stay on this device unless you export or delete them.",
+          "No production EHR, billing, or training systems are connected in this sandbox.",
+          "You may clear all visit history immediately after the session."
+        ]
+      }
+    },
+    "sharedConsent": {
+      "title": "Shared Visit Consent",
+      "description": "Both clinician and patient agree to use Clinical Copilot for this session. Nothing is saved unless it is reviewed together.",
+      "items": [
+        "Patient is comfortable with guided documentation for this visit.",
+        "Clinician keeps final say on every note, order, and recommendation."
+      ]
+    },
+    "privacy": {
+      "title": "Privacy Snapshot",
+      "description": "This sandbox keeps Protected Health Information on-device for demo purposes only.",
+      "acknowledgement": "We understand the PHI handling in this demo and can clear data at any time."
+    }
+  },
+  "actions": {
+    "primary": {
+      "default": "Begin Guided Visit",
+      "loading": "Setting up visit..."
+    },
+    "validationWarning": "All consent items and patient names must be completed to proceed."
+  }
+}
