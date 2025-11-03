@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Shield } from "lucide-react";
+import { Shield, CheckCircle2, Shuffle, Eraser, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -97,76 +97,97 @@ export default function Consent() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden rounded-[var(--radius-lg)] border border-primary-muted/40 bg-gradient-to-br from-surface/75 via-background/55 to-background/40 px-6 py-12 shadow-lg shadow-primary/10 backdrop-blur">
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-            <div className="rounded-[var(--radius-lg)] border border-primary-muted/30 bg-background/45 p-6 shadow-lg shadow-primary/5 backdrop-blur-sm">
-              <div className="space-y-6">
-                <div>
-                  <h2 className="text-base font-semibold text-foreground">{t("cards.demoPatient.title")}</h2>
-                  <p className="mt-2 text-sm text-muted-foreground">{persona.summary}</p>
+      <section className="relative overflow-hidden rounded-[var(--radius-lg)] border border-primary-muted/40 bg-gradient-to-br from-surface/75 via-background/55 to-background/40 px-6 py-10 shadow-lg shadow-primary/10 backdrop-blur">
+        <div className="grid gap-6 lg:grid-cols-2">
+          <div className="rounded-[var(--radius-lg)] border border-primary-muted/30 bg-background/45 p-6 shadow-lg shadow-primary/5 backdrop-blur-sm">
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">{t("cards.demoPatient.title")}</h2>
+                {persona.summary && <p className="mt-2 text-sm text-muted-foreground">{persona.summary}</p>}
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="patient-last-name" className="text-xs uppercase tracking-[0.3em] text-subtle">
+                    {t("cards.demoPatient.labels.lastName")}
+                  </Label>
+                  <Input
+                    id="patient-last-name"
+                    placeholder={t("cards.demoPatient.placeholders.lastName")}
+                    value={patientLastName}
+                    onChange={(e) => setPatientLastName(e.target.value)}
+                    className="h-11 border-primary-muted/40 bg-background/50 text-sm shadow-sm focus-visible:ring-primary"
+                  />
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="patient-last-name" className="text-xs uppercase tracking-[0.3em] text-subtle">
-                      {t("cards.demoPatient.labels.lastName")}
-                    </Label>
-                    <Input
-                      id="patient-last-name"
-                      placeholder={t("cards.demoPatient.placeholders.lastName")}
-                      value={patientLastName}
-                      onChange={(e) => setPatientLastName(e.target.value)}
-                      className="h-11 border-primary-muted/40 bg-background/50 text-sm shadow-sm focus-visible:ring-primary"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="patient-first-name" className="text-xs uppercase tracking-[0.3em] text-subtle">
-                      {t("cards.demoPatient.labels.firstName")}
-                    </Label>
-                    <Input
-                      id="patient-first-name"
-                      placeholder={t("cards.demoPatient.placeholders.firstName")}
-                      value={patientFirstName}
-                      onChange={(e) => setPatientFirstName(e.target.value)}
-                      className="h-11 border-primary-muted/40 bg-background/50 text-sm shadow-sm focus-visible:ring-primary"
-                    />
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="patient-first-name" className="text-xs uppercase tracking-[0.3em] text-subtle">
+                    {t("cards.demoPatient.labels.firstName")}
+                  </Label>
+                  <Input
+                    id="patient-first-name"
+                    placeholder={t("cards.demoPatient.placeholders.firstName")}
+                    value={patientFirstName}
+                    onChange={(e) => setPatientFirstName(e.target.value)}
+                    className="h-11 border-primary-muted/40 bg-background/50 text-sm shadow-sm focus-visible:ring-primary"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <Button type="button" size="sm" variant="ghost" className="gap-2" onClick={randomizeNames}>
+                  <Shuffle className="h-4 w-4" />
+                  Randomize
+                </Button>
+                <Button type="button" size="sm" variant="ghost" className="gap-2" onClick={clearNames}>
+                  <Eraser className="h-4 w-4" />
+                  Clear
+                </Button>
+              </div>
             </div>
           </div>
+
+          <div className="flex flex-col gap-5 rounded-[var(--radius-lg)] border border-primary-muted/30 bg-background/40 p-6 shadow-lg shadow-primary/5 backdrop-blur-sm">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">{t("cards.included.title")}</h2>
+              <div className="mt-3 grid gap-3">
+                {includedItems.map((item) => (
+                  <div key={item} className="flex items-start gap-3 text-sm leading-relaxed text-foreground">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-primary" aria-hidden />
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="flex flex-col gap-5 rounded-[var(--radius-lg)] border border-primary-muted/30 bg-background/40 p-6 shadow-lg shadow-primary/5 backdrop-blur-sm">
-              <div>
-                <h2 className="text-base font-semibold text-foreground">{t("cards.included.title")}</h2>
-                <ul className="mt-3 space-y-2 pl-4 text-sm leading-relaxed text-foreground">
-                  {includedItems.map((item) => (
+            {showFullTerms && (
+              <div className="rounded-md border border-border/50 bg-background/60 p-4 text-sm leading-relaxed text-foreground">
+                <p className="mb-2 font-semibold">{t("cards.included.fullTerms.title")}</p>
+                <ul className="space-y-2 pl-4 text-foreground/90">
+                  {fullTermsItems.map((item) => (
                     <li key={item} className="list-disc">
                       {item}
                     </li>
                   ))}
                 </ul>
               </div>
+            )}
 
-              {showFullTerms && (
-                <div className="space-y-3 text-sm leading-relaxed text-foreground">
-                  <p className="font-semibold">{t("cards.included.fullTerms.title")}</p>
-                  <ul className="space-y-2 pl-4 text-sm leading-relaxed text-foreground/90">
-                    {fullTermsItems.map((item) => (
-                      <li key={item} className="list-disc">
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+            <Button
+              type="button"
+              variant="link"
+              className="self-start px-0 text-xs font-semibold uppercase tracking-[0.2em] text-primary"
+              onClick={() => setShowFullTerms((prev) => !prev)}
+            >
+              {showFullTerms ? (
+                <span className="inline-flex items-center gap-1">
+                  {t("cards.included.toggle.hide")}
+                  <ChevronUp className="h-3 w-3" />
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1">
+                  {t("cards.included.toggle.show")}
+                  <ChevronDown className="h-3 w-3" />
+                </span>
               )}
-
-              <Button
-                type="button"
-                variant="link"
-                className="self-start px-0 text-xs font-semibold uppercase tracking-[0.2em]"
-                onClick={() => setShowFullTerms((prev) => !prev)}
-              >
-                {showFullTerms ? t("cards.included.toggle.hide") : t("cards.included.toggle.show")}
-              </Button>
-            </div>
+            </Button>
           </div>
         </div>
       </section>
