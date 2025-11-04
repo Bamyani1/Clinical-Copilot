@@ -18,6 +18,7 @@ coverage/
 .vscode/*
 !.vscode/extensions.json
 .idea/
+.cursor/
 *.suo
 *.ntvs*
 *.njsproj
@@ -91,4 +92,3 @@ vite.config.*.tsbuildinfo
 *.temp
 .cache/
 .parcel-cache/
-
