@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, ClipboardList, Microscope, TestTube, Pill, FileDown } from "lucide-react";
+import { ClipboardList, Microscope, TestTube, Pill, FileDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -108,9 +108,6 @@ export default function VisitComplete() {
       <section className="relative overflow-hidden rounded-[var(--radius-lg)] border border-primary-muted/40 bg-gradient-to-br from-surface/75 via-background/60 to-background/40 px-6 py-10 shadow-lg shadow-primary/10 backdrop-blur">
         <div className="flex flex-wrap items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white">
-              <CheckCircle2 className="h-6 w-6" />
-            </span>
             <div className="leading-tight">
               <p className="text-[11px] uppercase tracking-[0.3em] text-subtle">{t("header.brand")}</p>
               <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">{t("header.title")}</h1>
@@ -202,19 +199,19 @@ export default function VisitComplete() {
           </div>
           <div className="mt-14 flex flex-wrap items-center gap-2">
             <Button
-              className="inline-flex items-center rounded-full border border-primary-muted/40 bg-gradient-primary/75 px-5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-foreground shadow-md shadow-primary/25 transition hover:bg-gradient-primary"
+              className="inline-flex items-center rounded-full border border-primary-muted/40 bg-gradient-primary/75 px-5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-foreground shadow-md shadow-primary/25 hover:bg-gradient-primary"
               onClick={handleStartNewVisit}
             >
               {t("common:actions.startNewVisit")}
             </Button>
             <Button
-              className="inline-flex items-center rounded-full border border-primary-muted/40 bg-gradient-primary/75 px-5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-foreground shadow-md shadow-primary/25 transition hover:bg-gradient-primary"
+              className="inline-flex items-center rounded-full border border-primary-muted/40 bg-gradient-primary/75 px-5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-foreground shadow-md shadow-primary/25 hover:bg-gradient-primary"
               onClick={handleReturnHome}
             >
               {t("common:actions.returnHome")}
             </Button>
             <Button
-              className="inline-flex items-center gap-2 rounded-full border border-primary-muted/40 bg-gradient-primary/75 px-5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-foreground shadow-md shadow-primary/25 transition hover:bg-gradient-primary"
+              className="inline-flex items-center gap-2 rounded-full border border-primary-muted/40 bg-gradient-primary/75 px-5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-foreground shadow-md shadow-primary/25 hover:bg-gradient-primary"
               onClick={handleExportSummary}
             >
               <FileDown className="h-3 w-3" />
@@ -225,15 +222,15 @@ export default function VisitComplete() {
 
         <TabsContent value="insights" className="mt-6">
           <div className="space-y-8">
-            <section className="group/section relative overflow-hidden rounded-[var(--radius-lg)] border border-primary-muted/40 bg-gradient-to-br from-surface/75 via-background/60 to-background/40 transition-all duration-500 hover:border-primary-muted/60">
-              <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-700 group-hover/section:opacity-100">
+            <section className="group/section relative overflow-hidden rounded-[var(--radius-lg)] border border-primary-muted/40 bg-gradient-to-br from-surface/75 via-background/60 to-background/40 hover:border-primary-muted/60">
+              <div className="pointer-events-none absolute inset-0 opacity-0 group-hover/section:opacity-100">
                 <div className="absolute -right-32 -top-32 h-64 w-64 rounded-full bg-primary/10 blur-3xl" aria-hidden />
               </div>
 
               <div className="relative p-6">
                 <div className="mb-6 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius)] bg-primary text-white transition-all duration-300 group-hover/section:scale-110">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius)] bg-primary text-white group-hover/section:scale-110">
                       <Microscope className="h-5 w-5" />
                     </div>
                     <div>
@@ -251,15 +248,14 @@ export default function VisitComplete() {
                   </div>
                 ) : (
                   <div className="grid gap-3 lg:grid-cols-2">
-                    {differentials.slice(0, 6).map((diff, index) => (
+                    {differentials.slice(0, 6).map((diff) => (
                       <div
                         key={diff.id}
-                        className="group/item relative overflow-hidden rounded-lg border border-border/40 bg-background/60 transition-all duration-300 hover:border-primary/40 hover:bg-background/80"
-                        style={{ animationDelay: `${index * 50}ms` }}
+                        className="group/item relative overflow-hidden rounded-lg border border-border/40 bg-background/60 hover:border-primary/40 hover:bg-background/80"
                       >
                         <div
                           className={cn(
-                            "absolute left-0 top-0 h-full w-1 transition-all duration-300",
+                            "absolute left-0 top-0 h-full w-1",
                             diff.confidence >= 0.75 && "bg-confidence-high",
                             diff.confidence >= 0.45 && diff.confidence < 0.75 && "bg-confidence-medium",
                             diff.confidence < 0.45 && "bg-confidence-low",
@@ -267,13 +263,13 @@ export default function VisitComplete() {
                         />
                         <div className="p-4 pl-5">
                           <div className="mb-3 flex items-start justify-between gap-3">
-                            <h4 className="text-sm font-semibold text-foreground transition-colors duration-300 group-hover/item:text-primary">
+                            <h4 className="text-sm font-semibold text-foreground group-hover/item:text-primary">
                               {diff.diagnosis}
                             </h4>
                             <Badge
                               variant="outline"
                               className={cn(
-                                "shrink-0 border text-[11px] font-semibold uppercase tracking-wide transition-all duration-300",
+                                "shrink-0 border text-[11px] font-semibold uppercase tracking-wide",
                                 confidenceTone(diff.confidence),
                               )}
                             >
@@ -284,7 +280,7 @@ export default function VisitComplete() {
                           <div className="mt-3 overflow-hidden rounded-full bg-border/30">
                             <div
                               className={cn(
-                                "h-1 rounded-full transition-all duration-700",
+                                "h-1 rounded-full",
                                 diff.confidence >= 0.75 && "bg-confidence-high",
                                 diff.confidence >= 0.45 && diff.confidence < 0.75 && "bg-confidence-medium",
                                 diff.confidence < 0.45 && "bg-confidence-low",
@@ -300,15 +296,15 @@ export default function VisitComplete() {
               </div>
             </section>
 
-            <section className="group/section relative overflow-hidden rounded-[var(--radius-lg)] border border-primary-muted/40 bg-gradient-to-br from-surface/75 via-background/60 to-background/40 transition-all duration-500 hover:border-primary-muted/60">
-              <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-700 group-hover/section:opacity-100">
+            <section className="group/section relative overflow-hidden rounded-[var(--radius-lg)] border border-primary-muted/40 bg-gradient-to-br from-surface/75 via-background/60 to-background/40 hover:border-primary-muted/60">
+              <div className="pointer-events-none absolute inset-0 opacity-0 group-hover/section:opacity-100">
                 <div className="absolute -left-32 top-1/2 h-64 w-64 -translate-y-1/2 rounded-full bg-secondary/10 blur-3xl" aria-hidden />
               </div>
 
               <div className="relative p-6">
                 <div className="mb-6 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius)] bg-primary text-white transition-all duration-300 group-hover/section:scale-110">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius)] bg-primary text-white group-hover/section:scale-110">
                       <TestTube className="h-5 w-5" />
                     </div>
                     <div>
@@ -331,22 +327,21 @@ export default function VisitComplete() {
                   </div>
                 ) : (
                   <div className="grid gap-3 lg:grid-cols-2">
-                    {workupSuggestions.slice(0, 6).map((workup, index) => (
+                    {workupSuggestions.slice(0, 6).map((workup) => (
                       <div
                         key={workup.id}
-                        className="group/item relative overflow-hidden rounded-lg border border-border/40 bg-background/60 transition-all duration-300 hover:border-primary/40 hover:bg-background/80"
-                        style={{ animationDelay: `${index * 50}ms` }}
+                        className="group/item relative overflow-hidden rounded-lg border border-border/40 bg-background/60 hover:border-primary/40 hover:bg-background/80"
                       >
                         <div
                           className={cn(
-                            "absolute left-0 top-0 h-full w-1 transition-all duration-300",
+                            "absolute left-0 top-0 h-full w-1",
                             workup.priority === "urgent" ? "bg-red-flag" : "bg-border",
                           )}
                         />
                         <div className="p-4 pl-5">
                           <div className="mb-2 flex items-start justify-between gap-3">
                             <div className="flex-1">
-                              <h4 className="mb-1 text-sm font-semibold text-foreground transition-colors duration-300 group-hover/item:text-primary">
+                              <h4 className="mb-1 text-sm font-semibold text-foreground group-hover/item:text-primary">
                                 {workup.test}
                               </h4>
                               <Badge
@@ -359,7 +354,7 @@ export default function VisitComplete() {
                             <Badge
                               variant="outline"
                               className={cn(
-                                "shrink-0 border text-[11px] font-semibold uppercase transition-all duration-300",
+                                "shrink-0 border text-[11px] font-semibold uppercase",
                                 priorityTone(workup.priority),
                               )}
                             >
@@ -375,15 +370,15 @@ export default function VisitComplete() {
               </div>
             </section>
 
-            <section className="group/section relative overflow-hidden rounded-[var(--radius-lg)] border border-primary-muted/40 bg-gradient-to-br from-surface/75 via-background/60 to-background/40 transition-all duration-500 hover:border-primary-muted/60">
-              <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-700 group-hover/section:opacity-100">
+            <section className="group/section relative overflow-hidden rounded-[var(--radius-lg)] border border-primary-muted/40 bg-gradient-to-br from-surface/75 via-background/60 to-background/40 hover:border-primary-muted/60">
+              <div className="pointer-events-none absolute inset-0 opacity-0 group-hover/section:opacity-100">
                 <div className="absolute -bottom-32 right-16 h-64 w-64 rounded-full bg-primary/10 blur-3xl" aria-hidden />
               </div>
 
               <div className="relative p-6">
                 <div className="mb-6 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius)] bg-primary text-white transition-all duration-300 group-hover/section:scale-110">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius)] bg-primary text-white group-hover/section:scale-110">
                       <Pill className="h-5 w-5" />
                     </div>
                     <div>
@@ -406,15 +401,14 @@ export default function VisitComplete() {
                   </div>
                 ) : (
                   <div className="grid gap-3 lg:grid-cols-2">
-                    {medicationSuggestions.slice(0, 6).map((med, index) => (
+                    {medicationSuggestions.slice(0, 6).map((med) => (
                       <div
                         key={med.id}
-                        className="group/item relative overflow-hidden rounded-lg border border-border/40 bg-background/60 transition-all duration-300 hover:border-primary/40 hover:bg-background/80"
-                        style={{ animationDelay: `${index * 50}ms` }}
+                        className="group/item relative overflow-hidden rounded-lg border border-border/40 bg-background/60 hover:border-primary/40 hover:bg-background/80"
                       >
-                        <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-primary/60 to-primary/20 transition-all duration-300" />
+                        <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-primary/60 to-primary/20" />
                         <div className="p-4 pl-5">
-                          <h4 className="mb-2 text-sm font-semibold text-foreground transition-colors duration-300 group-hover/item:text-primary">
+                          <h4 className="mb-2 text-sm font-semibold text-foreground group-hover/item:text-primary">
                             {med.drugClass}
                           </h4>
                           <p className="mb-3 text-[13px] leading-relaxed text-muted-foreground">{med.indication}</p>
@@ -425,7 +419,7 @@ export default function VisitComplete() {
                                 <Badge
                                   key={item}
                                   variant="outline"
-                                  className="border-warning/40 bg-warning/10 text-[11px] font-medium text-warning transition-all duration-300 hover:bg-warning/20"
+                                  className="border-warning/40 bg-warning/10 text-[11px] font-medium text-warning hover:bg-warning/20"
                                 >
                                   ⚠ {item}
                                 </Badge>

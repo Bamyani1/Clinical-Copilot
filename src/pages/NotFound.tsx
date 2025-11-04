@@ -17,7 +17,7 @@ const NotFound = () => {
         <p className="mb-6 text-base text-muted-foreground">{t("message")}</p>
         <Link
           to="/"
-          className="inline-block rounded-[var(--radius-md)] bg-gradient-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 transition hover:-translate-y-0.5 hover:shadow-lg"
+          className="inline-block rounded-[var(--radius-md)] bg-gradient-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 hover:-translate-y-0.5 hover:shadow-lg"
         >
           {t("action")}
         </Link>

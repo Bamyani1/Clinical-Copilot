@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Menu, Stethoscope, WifiOff } from "lucide-react";
+import { Menu, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -42,7 +42,7 @@ export function AppShell({ children }: Props) {
       <div className="pointer-events-none absolute inset-0 -z-10 opacity-95 [background:radial-gradient(1400px_800px_at_10%_10%,_hsl(var(--primary)_/_0.48),_transparent_72%),radial-gradient(1100px_680px_at_85%_5%,_hsl(var(--secondary)_/_0.42),_transparent_68%),radial-gradient(900px_520px_at_50%_108%,_hsl(var(--accent)_/_0.28),_transparent_75%),linear-gradient(180deg,_hsl(var(--surface))_0%,_hsl(var(--background))_100%)]" />
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-6 focus:left-6 focus:z-50 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-lg transition"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-6 focus:left-6 focus:z-50 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-lg"
       >
         {t("labels.skipToContent")}
       </a>
@@ -59,10 +59,7 @@ export function AppShell({ children }: Props) {
 
       <header className="relative z-40 px-4 pt-8 sm:px-6">
         <div className="mx-auto flex w-full max-w-6xl items-center gap-4 rounded-full border border-border/60 bg-surface/70 px-4 py-3 shadow-lg shadow-primary/10 backdrop-blur-2xl sm:px-6">
-          <Link to="/" className="flex items-center gap-4 text-sm text-muted-foreground transition hover:text-foreground">
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-primary text-primary-foreground shadow-md shadow-primary/40">
-              <Stethoscope className="h-5 w-5" strokeWidth={1.3} />
-            </span>
+          <Link to="/" className="flex items-center gap-4 text-sm text-muted-foreground hover:text-foreground">
             <div className="leading-tight">
               <p className="text-[11px] uppercase tracking-[0.32em] text-subtle">{t("app.tagline")}</p>
               <p className="text-lg font-semibold text-foreground">{t("app.name")}</p>
@@ -75,7 +72,7 @@ export function AppShell({ children }: Props) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-10 w-10 rounded-full border border-border/60 bg-background/40 text-muted-foreground transition hover:border-primary-muted/60 hover:text-foreground"
+                  className="h-10 w-10 rounded-full border border-border/60 bg-background/40 text-muted-foreground hover:border-primary-muted/60 hover:text-foreground"
                 >
                   <Menu className="h-4 w-4" />
                   <span className="sr-only">{t("labels.openNavigation")}</span>
@@ -89,7 +86,7 @@ export function AppShell({ children }: Props) {
                   <DropdownMenuItem
                     key={item.to}
                     asChild
-                    className="cursor-pointer rounded-[calc(var(--radius)-4px)] px-3 py-2 text-sm font-medium tracking-wide text-muted-foreground/90 transition hover:bg-primary/15 hover:text-foreground"
+                    className="cursor-pointer rounded-[calc(var(--radius)-4px)] px-3 py-2 text-sm font-medium tracking-wide text-muted-foreground/90 hover:bg-primary/15 hover:text-foreground"
                   >
                     <Link
                       to={item.to}
@@ -106,7 +103,7 @@ export function AppShell({ children }: Props) {
                 <DropdownMenuSeparator className="my-1 bg-border/50" />
                 <DropdownMenuItem
                   asChild
-                  className="cursor-pointer rounded-[calc(var(--radius)-4px)] px-3 py-2 text-sm font-semibold uppercase tracking-[0.18em] text-primary transition hover:bg-primary/15 hover:text-primary"
+                  className="cursor-pointer rounded-[calc(var(--radius)-4px)] px-3 py-2 text-sm font-semibold uppercase tracking-[0.18em] text-primary hover:bg-primary/15 hover:text-primary"
                 >
                   <Link to="/consent">
                     {t("app.launch")}
@@ -128,7 +125,7 @@ export function AppShell({ children }: Props) {
             © {new Date().getFullYear()} {t("footer.legal")}
           </div>
           <div className="flex flex-wrap items-center gap-4 text-muted-foreground">
-            <Link to="/about" className="transition hover:text-foreground">
+            <Link to="/about" className="hover:text-foreground">
               {t("nav.about")}
             </Link>
           </div>

@@ -100,7 +100,7 @@
   --shadow-xl: 0 42px 96px -28px hsl(174 36% 22% / 0.45);
 
   /* Motion */
-  --transition-fast: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-normal: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-slow: all 0.48s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: none;
+  --transition-normal: none;
+  --transition-slow: none;
 }

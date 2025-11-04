@@ -61,7 +61,7 @@ export function SuggestionPanel() {
       const top = position === "top" ? 0 : viewport.scrollHeight;
       viewport.scrollTo({
         top,
-        behavior: "smooth",
+        behavior: "auto",
       });
     }
   };
@@ -274,13 +274,13 @@ export function SuggestionPanel() {
           <Brain className="h-5 w-5" />
           <span className="flex items-center gap-2">
             {t("suggestionPanel.title")}
-            {isGenerating && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+            {isGenerating && <Loader2 className="h-4 w-4 text-muted-foreground" />}
           </span>
           <Tooltip>
             <TooltipTrigger asChild>
               <button
                 type="button"
-                className="ml-auto inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background/50 text-muted-foreground transition hover:border-primary-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="ml-auto inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background/50 text-muted-foreground hover:border-primary-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 aria-label={t("suggestionPanel.tooltip.trigger")}
               >
                 <HelpCircle className="h-4 w-4" aria-hidden />

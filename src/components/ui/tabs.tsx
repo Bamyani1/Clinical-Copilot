@@ -27,7 +27,7 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "relative inline-flex items-center justify-center whitespace-nowrap px-3 py-2 text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground/70 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-40 data-[state=active]:text-primary data-[state=active]:after:absolute data-[state=active]:after:left-0 data-[state=active]:after:right-0 data-[state=active]:after:-bottom-[1.5px] data-[state=active]:after:h-[2px] data-[state=active]:after:rounded-full data-[state=active]:after:bg-gradient-to-r data-[state=active]:after:from-primary/70 data-[state=active]:after:via-primary/40 data-[state=active]:after:to-secondary/40 data-[state=active]:after:content-['']",
+      "relative inline-flex items-center justify-center whitespace-nowrap px-3 py-2 text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-40 data-[state=active]:text-primary data-[state=active]:after:absolute data-[state=active]:after:left-0 data-[state=active]:after:right-0 data-[state=active]:after:-bottom-[1.5px] data-[state=active]:after:h-[2px] data-[state=active]:after:rounded-full data-[state=active]:after:bg-gradient-to-r data-[state=active]:after:from-primary/70 data-[state=active]:after:via-primary/40 data-[state=active]:after:to-secondary/40 data-[state=active]:after:content-['']",
       className,
     )}
     {...props}

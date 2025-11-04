@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Stethoscope } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AudioCapture } from "@/components/visit/audio-capture";
 import { TranscriptViewer } from "@/components/visit/transcript-viewer";
@@ -117,9 +116,6 @@ export default function Visit() {
 
       <section className="relative flex flex-col items-start gap-4 rounded-[var(--radius-lg)] border border-primary-muted/40 bg-gradient-to-br from-surface/75 via-background/65 to-background/50 px-4 py-5 shadow-lg shadow-primary/10 backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:px-6">
         <div className="flex items-center gap-4">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white">
-            <Stethoscope className="h-6 w-6" />
-          </span>
           <div className="leading-tight">
             <p className="text-[11px] uppercase tracking-[0.3em] text-subtle">{t("page.header.brand")}</p>
             <h1 className="text-xl font-semibold text-foreground sm:text-2xl">{t("page.header.title")}</h1>

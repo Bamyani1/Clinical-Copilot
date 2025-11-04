@@ -122,7 +122,7 @@ export function AudioCapture() {
           {/* Audio level indicator */}
           <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-primary transition-all duration-100"
+              className="h-full bg-gradient-primary"
               style={{ width: `${audioLevel}%` }}
             />
           </div>
@@ -153,7 +153,7 @@ export function AudioCapture() {
           {/* Recording status */}
           {isRecording && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <div className="w-2 h-2 bg-red-flag rounded-full animate-pulse" />
+              <div className="w-2 h-2 rounded-full bg-red-flag" />
               {t("audioCapture.controls.status")}
             </div>
           )}
@@ -175,7 +175,7 @@ export function AudioCapture() {
                     aria-pressed={isActive}
                     onClick={() => handleScenarioPlayback(scenario.id)}
                     className={cn(
-                      "w-full justify-center rounded-full border border-border/60 px-6 py-2 text-sm font-semibold tracking-wide transition hover:-translate-y-0.5",
+                      "w-full justify-center rounded-full border border-border/60 px-6 py-2 text-sm font-semibold tracking-wide hover:-translate-y-0.5",
                       isActive
                         ? "border-primary/70 bg-gradient-primary text-primary-foreground shadow-lg shadow-primary/30"
                         : "bg-surface/80 text-foreground/80 hover:border-primary/50 hover:bg-primary/10 hover:text-foreground",

@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 
 const transcriptBubbleBase =
-  "group rounded-[var(--radius-md)] border border-border/60 bg-background/80 p-4 text-foreground shadow-sm shadow-primary/10 backdrop-blur transition-colors";
+  "group rounded-[var(--radius-md)] border border-border/60 bg-background/80 p-4 text-foreground shadow-sm shadow-primary/10 backdrop-blur";
 const speakerChipBase =
   "inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] bg-background/85 text-foreground/80";
 const confidenceBadgeBase =
@@ -55,7 +55,7 @@ export function TranscriptViewer() {
     if (viewport) {
       viewport.scrollTo({
         top: viewport.scrollHeight,
-        behavior: "smooth",
+        behavior: "auto",
       });
     }
   }, [transcript.length]);

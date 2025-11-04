@@ -40,7 +40,7 @@ export function CaseEditor() {
   const [fixtureStatus, setFixtureStatus] = useState<{ tone: "warning" | "error"; message: string } | null>(null);
 
   const removalPillClass =
-    "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
+    "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
   const extractCaseFromTranscript = useCallback(
     async (entries: TranscriptEntry[]) => {
@@ -166,7 +166,7 @@ export function CaseEditor() {
         <CardTitle className="flex items-center gap-2 text-lg font-semibold">
           <User className="h-5 w-5" />
           {t("caseEditor.title")}
-          {isExtracting && <Loader2 className="h-4 w-4 animate-spin" />}
+          {isExtracting && <Loader2 className="h-4 w-4" />}
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 min-h-0 space-y-6 overflow-y-auto">
